@@ -1,0 +1,23 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Prose from "@/components/Prose.astro";
+import { getCollection } from "astro:content";
+import { formatDate } from "@/util.ts";
+export async function getStaticPaths() {
+  // we want to make pages for all posts, not just non-draft ones
+  const blogEntries = await getCollection("blog");
+  return blogEntries.map((post) => ({
+    params: { year: post.data.date.getUTCFullYear(), slug: post.slug },
+    props: { post },
+  }));
+}
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <p class="mb-[2rem]">{formatDate(post.data.date)}</p>
+  <Prose>
+    <Content />
+  </Prose>
+</BaseLayout>
