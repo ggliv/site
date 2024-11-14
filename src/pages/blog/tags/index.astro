@@ -1,0 +1,22 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { tags, postsWithTag } from "@/util.ts";
+---
+
+<BaseLayout title="Tags">
+  <ul class="list-disc list-outside ml-[1rem]">
+    {
+      tags
+        .sort((a, b) => postsWithTag(b).length - postsWithTag(a).length)
+        .map((t) => (
+          <li>
+            <a class="link" href={`/blog/tags/${t}`} set:text={`#${t}`} />
+            {(() => {
+              const count = postsWithTag(t).length;
+              return `(${count} post${count > 1 ? "s" : ""})`;
+            })()}
+          </li>
+        ))
+    }
+  </ul>
+</BaseLayout>
