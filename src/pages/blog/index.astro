@@ -1,0 +1,40 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import siteConfig from "@/config.ts";
+import { posts, formatDate, tags, slugify } from "@/util.ts";
+---
+
+<BaseLayout title="Index" description={siteConfig.blogDescription}>
+  <div class="space-y-[1rem]">
+    <p
+      >This page is very much a work in progress. It may or may not grow into
+      what you would expect of a typical blog. For now, I’m writing for myself.
+      Enjoy!</p
+    >
+    {
+      tags.length > 0 && (
+        <p>
+          Check out
+          <a class="link" href="/blog/tags/" set:text="the tags page" />
+          if you're looking for a specific topic.
+        </p>
+      )
+    }
+    <ul class="list-disc list-outside ml-[1rem]">
+      {
+        posts
+          .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+          .map((post) => (
+            <li>
+              <a
+                class="link"
+                href={slugify(post.data.date, post.slug)}
+                set:text={post.data.title}
+              />
+              ({formatDate(post.data.date)})
+            </li>
+          ))
+      }
+    </ul>
+  </div>
+</BaseLayout>

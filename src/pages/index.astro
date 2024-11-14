@@ -1,0 +1,163 @@
+---
+import { Picture } from "astro:assets";
+import profileImage from "@/assets/images/profile.png";
+import siteConfig from "@/config";
+import "@/global.css";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{siteConfig.siteTitle}</title>
+
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content={siteConfig.colors.megaBlueDark}
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content={siteConfig.colors.megaBlue}
+    />
+    <meta name="description" content={siteConfig.siteDescription} />
+    <meta property="og:site_name" content={siteConfig.siteTitle} />
+    <meta property="og:title" content={siteConfig.siteTitle} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://github.com/ggliv.png" />
+    <meta property="og:url" content="https://ggliv.com" />
+    <meta property="og:description" content={siteConfig.siteDescription} />
+  </head>
+
+  <body
+    class:list={[
+      "min-h-screen",
+      "bg-gray-100",
+      "dark:bg-gray-900",
+      "text-gray-900",
+      "dark:text-gray-100",
+      "font-sans",
+      "flex",
+      "flex-col",
+      "gap-[1rem]",
+      "items-center",
+      "justify-center",
+      "leading-[1.2]",
+    ]}
+  >
+    <div
+      class:list={[
+        "mb-[2rem]",
+        "bg-mega-blue",
+        "dark:bg-mega-blue-dark",
+        "min-h-[1em]",
+        "min-w-full",
+      ]}></div>
+    <div
+      class:list={[
+        "mt-auto",
+        "text-center",
+        "text-[2.5rem]",
+        "flex",
+        "flex-col",
+        "items-center",
+        "gap-[1rem]",
+      ]}
+    >
+      <Picture
+        src={profileImage}
+        alt="Profile shot of Gabe Livengood"
+        formats={["avif", "webp"]}
+        class:list={[
+          "w-[6.75em]",
+          "max-w-full",
+          "h-auto",
+          "rounded-full",
+          "border-4",
+          "border-[gray]",
+          "bg-white",
+        ]}
+      />
+      <div>
+        <script>
+          let greetings = ["Hey", "Howdy", "Sup", "Hi", "Yo", "Hello", "Heya"];
+          let h = new Date().getHours();
+          if (5 <= h && h <= 11) {
+            greetings.push("Morning");
+          } else if (12 <= h && h <= 17) {
+            greetings.push("Afternoon");
+          } else if (18 <= h && h <= 23) {
+            greetings.push("Evening");
+          }
+          window.addEventListener("DOMContentLoaded", () => {
+            let greetingElement;
+            if ((greetingElement = document?.getElementById("greeting"))) {
+              greetingElement.innerText =
+                greetings[Math.floor(Math.random() * greetings.length)];
+            }
+          });
+        </script>
+        <div><span id="greeting"><noscript>Hey</noscript></span>, I'm</div>
+        <b>Gabe Livengood</b>
+      </div>
+      <div
+        class:list={[
+          "bg-mega-blue",
+          "dark:bg-mega-blue-dark",
+          "text-gray-100",
+          "rounded-[0.5rem]",
+          "px-[0.5rem]",
+          "pb-[0.1rem]",
+          "font-fredoka",
+          "text-[0.9em]",
+          "transform",
+          "rotate-[-0.01turn]",
+        ]}
+        ><b>(@ggliv)</b>
+      </div>
+    </div>
+    <div class="text-center text-[1.25em] mb-auto">
+      <p class="max-w-[90%] md:max-w-[75%] mx-auto my-[1.5rem]">
+        I'm a hacker at heart interested in computing, mathematics, music, and
+        the wider world around us.
+      </p>
+      <ul
+        class:list={[
+          "inline-flex",
+          "flex-wrap",
+          "justify-center",
+          "gap-3",
+          "underline",
+          "text-blue-700",
+          "dark:text-blue-300",
+        ]}
+      >
+        <li>
+          <a href="/blog/">Blog</a>
+        </li>
+        <li>
+          <Fragment
+            set:html={`<a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#103;&#097;&#098;&#101;&#064;&#103;&#103;&#108;&#105;&#118;&#046;&#099;&#111;&#109;">Email</a>`}
+          />
+        </li>
+        <li>
+          <a href="//github.com/ggliv">GitHub</a>
+        </li>
+        <li>
+          <a href="//www.linkedin.com/in/gabe-livengood/">LinkedIn</a>
+        </li>
+      </ul>
+    </div>
+    <div
+      class:list={[
+        "mt-[2rem]",
+        "bg-mega-blue",
+        "dark:bg-mega-blue-dark",
+        "min-h-[1em]",
+        "min-w-full",
+      ]}></div>
+  </body>
+</html>

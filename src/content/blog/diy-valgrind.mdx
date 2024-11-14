@@ -1,0 +1,281 @@
+---
+title: Make your own Valgrind with LD_PRELOAD
+date: 2024-09-25
+description: Because creating bad versions of good things is fun
+tags: ["c", "cpp", "linux"]
+---
+
+One of the big dangers of languages that have manual memory management (most notably C and C++) is the potential for memory leaks. Consider the following super useful, totally-not-contrived C program:
+
+```c
+#include <stdlib.h>
+#include <stdio.h>
+
+int *get_int(void) {
+  return malloc(sizeof(int));
+}
+
+int main(void) {
+  int *i = get_int();
+  *i = 9 + 10;
+  printf("%d\n", *i);
+  return EXIT_SUCCESS;
+}
+```
+
+Running this program does what it says on the tin--allocates an `int`-sized chunk of memory on the heap, stores something there, prints it, and then dies. But beware! That `int` that we allocate is never freed, meaning that up until the moment the process ends,[^os-mm] you have an `int` with nothing to do floating around on the heap and hogging up space.
+
+This is a memory leak. It's not a big deal here, but you can imagine that in a bigger program with lots more allocations and a longer run time (say, your web browser), the space used up by leaked memory can be significant.
+
+This is bad. Thankfully, the systems programming luminaries of yesteryear recognized this problem and put together some tooling for detecting leaks. We'll talk about one of these tools and try to make our own simple version of it for fun.
+
+# Valgrind
+
+[Valgrind](https://valgrind.org/) is a general-purpose memory debugging tool that can, among other things, detect and report leaks in programs. Let's see what it has to say about our example program from earlier:
+
+```console
+$ cc ex.c -o ex.out
+$ valgrind ./ex.out
+==264361== Memcheck, a memory error detector
+==264361== Copyright (C) 2002-2024, and GNU GPL'd, by Julian Seward et al.
+==264361== Using Valgrind-3.23.0 and LibVEX; rerun with -h for copyright info
+==264361== Command: ./ex.out
+==264361==
+19
+==264361==
+==264361== HEAP SUMMARY:
+==264361==     in use at exit: 4 bytes in 1 blocks
+==264361==   total heap usage: 2 allocs, 1 frees, 1,028 bytes allocated
+==264361==
+==264361== LEAK SUMMARY:
+==264361==    definitely lost: 4 bytes in 1 blocks
+==264361==    indirectly lost: 0 bytes in 0 blocks
+==264361==      possibly lost: 0 bytes in 0 blocks
+==264361==    still reachable: 0 bytes in 0 blocks
+==264361==         suppressed: 0 bytes in 0 blocks
+==264361== Rerun with --leak-check=full to see details of leaked memory
+==264361==
+==264361== For lists of detected and suppressed errors, rerun with: -s
+==264361== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+```
+
+Valgrind is telling us that we allocated twice and freed only once, leaking 4 bytes (the size of an `int` on my machine). The other allocation that we didn't explicitly make comes from somewhere inside of the guts of `libc`, probably stemming from our `printf` call.
+
+This is super convenient. Instead of carefully poring over each allocation we write to make sure they're all properly freed, we can now just run our program through Valgrind and identify whether there is or isn't a problem. In the event that there are problems, you can even run Valgrind with some extra options to identify where the leak occured (though this is out of scope for what we're making in this post).
+
+# Linking and `LD_PRELOAD`
+
+When you write a program that uses an external library, your computer needs to be able to locate and execute the library's code when you try to call into it. Doing this is the job of a program called the linker. Broadly speaking, linking can be done in two ways: statically and dynamically.
+
+Static linking is pretty much a "copy and paste" operation from the library's code into your program's code. The instructions from the library get baked directly into your instructions. This is good for portability (since the binary contains everything it needs to run) and can even improve performance in some cases (since linking is done ahead of time and everything is located one place).[^lto]
+
+With dynamic linking, your program comes bundled with a list of library functions that it requires and leaves it up to the operating system to find them at run time. Just before your program starts, the operating system's dynamic linker will search all over your computer for shared objects that provide the required functions and make them accessible to your program. This is good for modularity (you can just update the shared library file to update all consuming programs) and helps save disk space (since you only need one copy of a library for all the programs that use it).
+
+Dynamic linking gives us a fun new tool to play with. Imagine that we wanted to change the behavior of a program that's already been compiled. If that program relies on dynamic linking to load some library function, we can step in and convince the operating system to look somewhere other than the proper place for that code. On Linux,[^preload-other-unix] this can be done with the `LD_PRELOAD` environment variable. From `ld.so(8)`:
+
+> LD_PRELOAD
+>
+> A list of additional, user-specified, ELF shared objects to be loaded before all others. This feature can be used to selectively override functions in other shared objects.
+
+Because they're so commonly used, systems-level libraries are dynamically linked into programs in the vast majority of cases. Luckily enough, this includes `libc`, the C standard library, which is where we get `malloc` and `free`. If we preloaded in our own shim around those two functions and did some bookkeeping, we could report on program exit whether or not there are any leaks!
+
+# Writing a shim
+
+Let's do just that. We have two functions[^other-alloc] that we want to shim: `malloc` and `free`. We'll keep track of everything that we allocate in a linked list, remove items from that linked list when we free them, and then print out how many bytes were left over on exit.
+
+First, let's start with a simple proof of concept shim around `malloc`:
+
+```c
+#include <stdlib.h>
+#include <stdio.h>
+#include <dlfcn.h>
+
+void *(*orig_malloc)(size_t);
+
+void shims_atexit(void) {
+  printf("Shimmed!\n");
+}
+
+void *malloc(size_t size) {
+  if (orig_malloc == NULL) {
+      atexit(&shims_atexit);
+      orig_malloc = dlsym(RTLD_NEXT, "malloc");
+  }
+  return orig_malloc(size);
+}
+```
+
+This code declares a new version of `malloc` that, when called for the first time, registers a custom function `shims_atexit` to run when the program terminates. In this exit function we simply print out the message "Shimmed!" to console. We also save the real `malloc` to the function pointer `orig_malloc` by telling the dynamic linker to find and load the next `malloc` symbol it found while searching the system.
+
+To compile the above program, we run:
+
+```console
+$ cc shims.c -shared -fPIC -o shims.so
+```
+
+This says to compile the program `shims.c` as a shared library, enables the flag for **P**osition **I**ndependent **C**ode, and saves the output to `shims.so`.
+
+Let's see how this shim works with the example program we wrote at the beginning of the post:
+
+```console
+$ LD_PRELOAD=./shims.so ./ex.out
+19
+Shimmmed!
+```
+
+Nice. The dynamic loader is grabbing our version of `malloc` and calling it when the example program tries to allocate an `int`. Let's fill things out with the rest of our logic.
+
+We'll start with the boring bits--one struct and a few globals. The struct is for a node in a doubly-linked list, which we'll use for all of the bookkeeping for shimmed allocations. We'll manage this linked list with the POSIX `insque` and `deque` functions declared in `search.h`. The two function pointers are for us to store and later call the real versions of the functions we're shimming. Lastly, the `set_up` variable is a simple flag to indicate when some setup code we'll later write has already been called.
+
+```c
+#include <search.h>
+#include <stddef.h>
+
+struct AllocNode {
+  struct AllocNode *next;
+  struct AllocNode *prev;
+  void *ptr;
+  size_t size;
+};
+
+struct AllocNode *head;
+
+void *(*orig_malloc)(size_t);
+void (*orig_free)(void *);
+
+int set_up;
+```
+
+Next we'll jump ahead and define our exit handler. When the program terminates, anything remaining in the linked list is a leak. We'll traverse the list and print out information on each node we see.
+
+```c
+#include <stddef.h>
+#include <stdio.h>
+
+void shims_atexit(void) {
+  while (head != NULL) {
+    printf("%lu bytes from pointer %p were not freed!\n", head->size,
+            head->ptr);
+    struct AllocNode *next = head->next;
+    orig_free(head);
+    head = next;
+  }
+}
+```
+
+After that, we'll make a function responsible for grabbing a pointer to the real allocation functions and registering our exit handler. We'll call this once when our shims are first used to make sure things are in a sane state.
+
+```c
+#include <dlfcn.h>
+#include <stdlib.h>
+
+void shims_setup(void) {
+  if (!set_up) {
+    orig_malloc = dlsym(RTLD_NEXT, "malloc");
+    orig_free = dlsym(RTLD_NEXT, "free");
+    atexit(&shims_atexit);
+    set_up = 1;
+  }
+}
+```
+
+Now we have everything we need to write the first actual shim (around `malloc`):
+
+```c
+void *malloc(size_t size) {
+  if (!set_up)
+    shims_setup();
+
+  // make our new node
+  struct AllocNode *new = orig_malloc(sizeof(struct AllocNode));
+  new->size = size;
+  new->ptr = orig_malloc(size);
+
+  // insert it into the linked list
+  insque(new, head);
+  if (head == NULL) {
+    head = new;
+  }
+
+  // pass the new allocation to the caller
+  return new->ptr;
+}
+```
+
+Next, around `free`:
+
+```c
+void free(void *ptr) {
+  if (ptr == NULL) {
+    return;
+  } else if (!set_up) {
+    shims_setup();
+  }
+
+  // find the node we're freeing
+  struct AllocNode *search = head;
+  while (search->ptr != ptr) {
+    search = search->next;
+  }
+
+  if (search == head) {
+    head = head->next;
+  }
+
+  // free the pointer and take it out of our linked list
+  orig_free(search->ptr);
+  remque(search);
+  orig_free(search);
+}
+```
+
+And that's it! Here's [everything put together into one file](https://nopaste.boris.sh/?l=c#XQAAAQAzBQAAAAAAAAARmknGRw8TogB3Oxl4CFPTJk56zZ6jfFaTq0qTJ0ngf3DXdtYjM4H/sqUeZYisyS5aBP5bpQTf+gEu/KfkUbLUx54rxX6hPxF8cm2eDPDDDJ0FW0q9w+KR7VQ3t1jme8+42PeZDcRqnkshNG2OFFYkkDki168abNEms9VQxxgapSgPAgLwpRmzxZ79k6yj22WthImdsBdv1xfPmNPpdlBAn7hIU5MT36N/c0JJoaUqDCANO5ZuTz9eqvypCNnmJ0mqKvhOIhhFwO7oFCyBqCVo6sYPyAPHxkliv0IRmesoT8ItgKP1TjY+QFJ9YFaGXjNFGUp3tCFvbkH+IOOr3f331kcoH/f2gdz9C8rzCZ2mxXttERtsskB1HK+nd4OQiPFBFtwGM1XbTFCCoYwCkeLbLtde0bK5ZoQAxK0CWVL5tENj4u3X2puaPwY1q8quQvN6S1bqa6qShjRemx4keZ803kbYMfVN4289JcL3AKTCARO8KI0fMy2t/VfiyNPLQi93EdzJSBDmksHziktrF4rshsKyC0x24S29i1/lMBt+d3Hz8CWNA/AXXP6JrQm+7uGGcdSYEydTqv4HVFxKFjHzahByykPpq8xjJ3EpFvEGPSo+YqKtGIzjqb+qLQby3eSf+OaTC4mk2a0m+VRKzhY4Ieq5GUBOS2Ci2z7/Q1wTDbn8Urbg).
+
+# Results
+
+Let's test our new leak checker with that first example program.
+
+```console
+$ cc ex.c -o ex.out
+$ cc shims.c -shared -fPIC -o shims.so
+$ LD_PRELOAD=./shims.so ./ex.out
+19
+4 bytes from pointer 0x64a17f2442d0 were not freed!
+1024 bytes from pointer 0x64a17f244320 were not freed!
+```
+
+Awesome. Those extra 1024 bytes of leakage seem to be from the internals of `malloc` this time. While not ideal, fixing this issue would (as far as I know) require significantly more complex code than what we wrote here.
+
+If we modify our example program to properly free its allocation like this:
+
+```diff
+diff --git a/ex.c b/ex_fix.c
+index 4335186..7e52d09 100644
+--- a/ex.c
++++ b/ex.c
+@@ -11,5 +11,6 @@ int main(void)
+   int *i = get_int();
+   *i = 9 + 10;
+   printf("%d\n", *i);
++  free(i);
+   return EXIT_SUCCESS;
+ }
+```
+
+And then recompile and run with our shims again:
+
+```console
+$ cc ex.c -o ex.out
+$ LD_PRELOAD=./shims.so ./ex.out
+19
+```
+
+We don't get any leak messages! Success!
+
+[^os-mm]: Though all reasonable systems do, nothing in the C or C++ standard actually requires the operating system to clean up unfreed memory at process termination. So in some cases you could actually continue leaking memory even after the process ends.
+
+[^lto]: There's also Link Time Optimization (LTO), which adds more metadata (usually compiler IR) to a library so that the linker can perform optimizations once the whole program is known. This isn't _really_ your typical static linking though, it's kind of its own thing.
+
+[^preload-other-unix]: From some brief searching it looks like `LD_PRELOAD` is also available on other flavors of Unix, including Solaris, SunOS, HP-UX, and the BSDs. On macOS, you'd use `DYLD_INSERT_LIBRARIES`.
+
+[^other-alloc]: For a more complete solution you'd really want to include shims for `calloc`, `realloc`, and `reallocarray`. Adding those other functions should follow pretty clearly from what's done here, and is left as an exercise for the reader.

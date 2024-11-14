@@ -1,0 +1,39 @@
+---
+
+---
+
+<div
+  class:list={[
+    "text-center",
+    "w-full",
+    "bg-gray-200",
+    "text-gray-500",
+    "dark:bg-gray-800",
+    "p-[0.5rem]",
+  ]}
+>
+  <div>
+    <a class="md:inline-block" href="/">Home</a>
+    &middot;
+    <a class="md:inline-block" href="/blog/feed.xml">RSS</a>
+    &middot;
+    <a class="md:inline-block" href="#">Top</a>
+  </div>
+  <div>
+    <p class="group md:inline-block">
+      <span
+        class:list={[
+          "inline-block",
+          "motion-safe:group-hover:[transform:rotateY(180deg)]",
+          "transition-transform",
+        ]}>&copy;</span
+      > 2023-{new Date().getUTCFullYear()} Gabe Livengood
+    </p>
+    <span class="hidden md:inline-block">&middot;</span>
+    <p class="md:inline-block">
+      Blog content is <a href="//creativecommons.org/licenses/by-sa/4.0/"
+        >CC-BY-SA-4.0</a
+      >. Code examples are <a href="//choosealicense.com/licenses/mit/">MIT</a>.
+    </p>
+  </div>
+</div>
