@@ -10,7 +10,7 @@ import "@/global.css";
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{title} &middot; {siteConfig.blogTitle}</title>
+    <title>{title} | {siteConfig.siteTitle}</title>
     <meta
       name="theme-color"
       media="(prefers-color-scheme: dark)"
@@ -35,7 +35,7 @@ import "@/global.css";
     <link
       rel="alternate"
       type="application/rss+xml"
-      title={siteConfig.blogTitle}
+      title="Blog RSS"
       href={"/blog/feed.xml"}
     />
   </head>
