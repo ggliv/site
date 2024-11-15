@@ -16,7 +16,29 @@ const { Content } = await post.render();
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <p class="mb-[2rem]">{formatDate(post.data.date)}</p>
+  <div class="text-lg">
+    {
+      post.data.tags && (
+        <p>
+          Filed under{" "}
+          <span class="whitespace-nowrap">
+            [{" "}
+            {post.data.tags
+              .map((tag) => (
+                <a
+                  class="link"
+                  href={`/blog/tags/${tag}`}
+                  set:text={"#" + tag}
+                />
+              ))
+              .reduce((prev, curr) => [prev, ", ", curr])}{" "}
+            ]
+          </span>
+        </p>
+      )
+    }
+    <p class="mb-[2rem]">{formatDate(post.data.date)}</p>
+  </div>
   <Prose>
     <Content />
   </Prose>
