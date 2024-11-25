@@ -9,6 +9,7 @@ export function GET(context: APIContext) {
     description: siteConfig.blogDescription,
     // Pinky promise that this is safe
     site: context.site!,
+    trailingSlash: false,
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,
