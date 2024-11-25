@@ -11,9 +11,22 @@
     <title>Not Found</title>
   </head>
   <body
-    class="min-h-screen min-w-screen flex flex-col item-center justify-center text-center gap-8"
+    class:list={[
+      "min-h-screen",
+      "min-w-screen",
+      "flex",
+      "flex-col",
+      "gap-8",
+      "item-center",
+      "justify-center",
+      "text-center",
+      "bg-white",
+      "text-black",
+      "dark:bg-neutral-900",
+      "dark:text-white",
+    ]}
   >
-    <div class="mt-2em text-3xl">&#128031;</div>
+    <div class="mt-2em text-3xl dark:brightness-125">&#128031;</div>
     <h1 class="text-3xl">404: Not Found</h1>
     <p class="max-w-[90%] mx-auto">
       Couldn't find the page you requested. If this page really should exist,
@@ -21,10 +34,10 @@
       rot!
     </p>
     <a
-      class="underline text-sky-500"
+      class="underline text-sky-500 dark:text-sky-300"
       href="/"
       set:text="Back to safer waters"
     />
-    <div class="mb-2em text-3xl">&#128031;</div>
+    <div class="mb-2em text-3xl dark:brightness-125">&#128031;</div>
   </body>
 </html>
