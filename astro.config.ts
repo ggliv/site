@@ -10,6 +10,7 @@ export default defineConfig({
   // This MUST be defined, otherwise RSS breaks, making everyone sad
   site: "https://ggliv.com",
   output: "static",
+  // Note that the RSS page expects no trailing slash on blog URLs
   trailingSlash: "ignore",
   build: {
     format: "preserve",
