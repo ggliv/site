@@ -19,7 +19,7 @@ const { tag } = Astro.params;
           <li>
             <a
               class="link"
-              href={slugify(post.data.date, post.slug)}
+              href={slugify(post.data.date, post.id)}
               set:text={post.data.title}
             />
             ({formatDate(post.data.date)})
