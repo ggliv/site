@@ -14,7 +14,7 @@ export function GET(context: APIContext) {
       title: post.data.title,
       pubDate: post.data.date,
       description: post.data.description,
-      link: slugify(post.data.date, post.slug),
+      link: slugify(post.data.date, post.id),
     })),
   });
 }
