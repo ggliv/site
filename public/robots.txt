@@ -1,0 +1,7 @@
+User-agent: anthropic-ai
+User-agent: Claude-Web
+User-agent: CCbot
+User-agent: FacebookBot
+User-agent: Google-Extended
+User-agent: GPTBot
+Disallow: /
