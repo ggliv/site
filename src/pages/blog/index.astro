@@ -1,7 +1,17 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import siteConfig from "@/config.ts";
-import { posts, formatDate, tags, slugify } from "@/util.ts";
+import { posts, tags, slugify } from "@/util.ts";
+
+let years: Record<string, typeof posts> = {};
+for (const post of posts) {
+  let year = post.data.date.getFullYear().toString();
+  if (!years.hasOwnProperty(year)) {
+    years[year] = [post];
+  } else {
+    years[year].push(post);
+  }
+}
 ---
 
 <BaseLayout title="Blog Index" description={siteConfig.blogDescription}>
@@ -15,21 +25,27 @@ import { posts, formatDate, tags, slugify } from "@/util.ts";
         </p>
       )
     }
-    <ul class="list-disc list-outside ml-[1rem]">
-      {
-        posts
-          .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
-          .map((post) => (
-            <li>
-              <a
-                class="link"
-                href={slugify(post.data.date, post.id)}
-                set:text={post.data.title}
-              />
-              ({formatDate(post.data.date)})
-            </li>
-          ))
-      }
-    </ul>
+    {
+      Object.keys(years)
+        .sort((a, b) => +b - +a)
+        .map((year) => (
+          <div>
+            <h2 class="text-xl">{year}</h2>
+            <ul class="list-disc list-outside ml-[1rem]">
+              {years[year]
+                .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+                .map((post) => (
+                  <li>
+                    <a
+                      class="link"
+                      href={slugify(post.data.date, post.id)}
+                      set:text={post.data.title}
+                    />
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+    }
   </div>
 </BaseLayout>
