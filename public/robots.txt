@@ -42,3 +42,8 @@ User-agent: VelenPublicWebCrawler
 User-agent: Webzio-Extended
 User-agent: YouBot
 Disallow: /
+
+User-agent: *
+Disallow: /*.php$
+Disallow: /*.php3$
+Disallow: /*.php7$
