@@ -7,5 +7,5 @@
 .link {
   @apply text-blue-700;
   @apply dark:text-blue-300;
-  @apply no-underline;
+  @apply underline;
 }
