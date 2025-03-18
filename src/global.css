@@ -1,8 +1,17 @@
-@import "@fontsource-variable/fredoka";
+@import "@fontsource-variable/fredoka" layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@plugin '@tailwindcss/typography';
+
+@theme {
+  --color-mega-blue: #2987d9;
+  --color-mega-blue-dark: #282ed8;
+
+  --font-fredoka: Fredoka Variable, sans-serif;
+  --font-sans: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
 
 .link {
   @apply text-blue-700;
