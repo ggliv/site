@@ -1,12 +1,12 @@
 import { defineConfig } from "astro/config";
 
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 
 import mdx from "@astrojs/mdx";
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), mdx()],
+  integrations: [mdx()],
   // This MUST be defined, otherwise RSS breaks, making everyone sad
   site: "https://ggliv.com",
   output: "static",
@@ -14,5 +14,8 @@ export default defineConfig({
   trailingSlash: "ignore",
   build: {
     format: "preserve",
-  }
+  },
+  vite: {
+    plugins: [tailwindcss()]
+  },
 });
