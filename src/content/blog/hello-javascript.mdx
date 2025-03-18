@@ -53,100 +53,104 @@ JavaScript's most basic units of information are categorized into a few primitiv
 
 Booleans are values of `true` or `false`. They're used extensively in conditional statements, which we'll cover later.
 
+{/* prettier-ignore */}
 ```js
 // true!!!
-true;
+true
 // false...
-false;
+false
 // logical or, yields true
-true || false;
+true || false
 // logical and, yields false
-true && false;
+true && false
 // logical not, yields false
-!true;
+!true
 // use parenthesis to enforce an order of operations
 // this yields true
-true || false || (true && false);
+true || false || (true && false)
 ```
 
 Numbers are stored as double-precision floating point numbers (think `double` in your C-style language of choice). They look like:
 
+{/* prettier-ignore */}
 ```js
 // plain integers yield their value
-1;
+1
 // you can add a point without anything after it
-2;
+2
 // or with something
-3.0;
+3.0
 // scientific notation works - this translates to 400 * 10^(-2)
-400e-2;
+400e-2
 // numbers prefixed with 0x are interpreted as base-16 (hexadecimal)
-0x5;
+0x5
 // a 0b prefix denotes a base-2 literal (binary)
-0b110;
+0b110
 // you can separate digits with an underscore (_) for readability
 // this yields 1000000 (one million)
-1_000_000;
+1_000_000
 // addition, yields 3
-1 + 2;
+1 + 2
 // subtraction, yields -1
-1 - 2;
+1 - 2
 // multiplication, yields 2
-1 * 2;
+1 * 2
 // division, yields 0.5
-1 / 2;
+1 / 2
 // modulo, yields 1
-1 % 2;
+1 % 2
 // exponentiation (think a^b), yields 1
-1 ** 2;
+1 ** 2
 ```
 
 Please keep in the back of your mind that these are floats, and come with all the usual float weirdness (imprecision, non-associativity, signed zeroes, infinities, NaNs). You should almost never have to worry about these things, but it's good to know that they exist just in case you ever do.
 
 Strings look like this:
 
+{/* prettier-ignore */}
 ```js
 // double quotes
-"this is a string";
+"this is a string"
 // single quotes
-"this is also a string";
+"this is also a string"
 // backticks (that thing to the left of your 1 key)
-`this is also also a string`;
+`this is also also a string`
 // you can use a backslash (\) to break long strings into multiple lines
 // this yields "this string spans multiple lines!" (no new line)
 ("this string spans \
-multiple lines!");
+multiple lines!")
 // you can use the usual escape sequences
-("newline: \n, tab: \t, carriage return: \r, null: \0, etc");
+("newline: \n, tab: \t, carriage return: \r, null: \0, etc")
 // strings are arrays of individual characters. you can access these characters
 // with a subscript ([]). we'll talk more about arrays later!
 // this yields the string '3'
-"012345"[3];
+"012345"[3]
 // + appends strings together. this yields "strings are nice".
-"strings " + "are nice";
+"strings " + "are nice"
 // other types are eagerly converted into strings when appended
 // this yields "this should say false: false"
-"this should say false: " + (false || (false && true));
+"this should say false: " + (false || (false && true))
 // backtick strings allow you to inject any js expression into a string with
 // `${expr}`
-`this should say false: ${false || (false && true)}`;
+`this should say false: ${false || (false && true)}`
 ```
 
 Undefined and null values are kind of special. Undefined is used to indicate that an identifier hasn't been given an explicit value. You'll see undefined values if you try to do something like use a variable that hasn't been assigned to. Null values, on the other hand, are used to indicate an intentional value of 'nothing'. Most of the time, you shouldn't go out of your way to use undefined. Null is maybe a little bit more common.
 
+{/* prettier-ignore */}
 ```js
-undefined;
-null;
+undefined
+null
 // operations with null and undefined are weird. you really shouldn't ever have
 // to think about them, but here are some quick examples just for fun:
 // this yields NaN (the floating point value)
-true + undefined;
+true + undefined
 // this yields the number 1
-true + null;
+true + null
 // the typeof operator should yield a string containing a value's type (e.g.
 // "string", "boolean", etc), but this yields "object" instead of "null" (more
 // on objects later)
-typeof null;
+typeof null
 ```
 
 [^other-primitives]: Okay, technically there's also [`bigint`](https://developer.mozilla.org/en-US/docs/Glossary/BigInt) and [`symbol`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol), but most readers probably don't need to worry about those.
@@ -214,34 +218,35 @@ baz === -1;
 
 Comparisons let you check whether data structures satisfy some sort of condition.
 
+{/* prettier-ignore */}
 ```js
 // double-equals (==) compares values. this yields true:
-0 == 0;
+0 == 0
 // but beware! the interpreter will try and convert types to allow for
 // comparison. this can lead to unexpected behavior like this (comparing string
 // and number), which yields true
-"0" == 0;
+"0" == 0
 
 // if you want to do an equals comparison while respecting type differences,
 // you'd use a triple-equals (===) comparison.
-0 === 0; // true
-"0" === 0; // false
+0 === 0 // true
+"0" === 0 // false
 
 // a similar distinction exists for the not-equals comparisons. the following
 // are equivalent, and yield false
-!(0 == 0);
-0 != "0";
+!(0 == 0)
+0 != "0"
 // the following are equivalent, and yield true
-!(0 === "0");
-0 !== "0";
+!(0 === "0")
+0 !== "0"
 
 // finally, we have the ordering comparisons. these work as you would expect in
 // any other language, with the caveat that types are always converted (like
 // with ==)
-0 > 0; // false
-0 >= "0"; // true
-0 < "0"; // false
-0 <= 0; // true
+0 > 0 // false
+0 >= "0" // true
+0 < "0" // false
+0 <= 0 // true
 ```
 
 JavaScript also has something called 'truthy' and 'falsy' values. Basically, all non-Boolean values will behave like `true` or `false` if you try to use them as if they were Boolean. The rule is pretty simple - all values behave like `true` except for the following, which behave like `false`:
@@ -252,17 +257,18 @@ JavaScript also has something called 'truthy' and 'falsy' values. Basically, all
 - `null`
 - `undefined`
 
+{/* prettier-ignore */}
 ```js
 // we'll use bang-bang (!!) to force a truthy/falsy value to turn into a
 // boolean. it really just does a logical not (the first !) and then nots that
 // again (the second !) to get the original boolean value.
 // the following all yield `true`
-false === !!0;
-false === !!"";
-false === !!null;
-true === !!1;
-true === !!"true";
-true === !!"false";
+false === !!0
+false === !!""
+false === !!null
+true === !!1
+true === !!"true"
+true === !!"false"
 ```
 
 ### Conditionals
@@ -977,7 +983,10 @@ greetWithNameUnpack({
 And for for-of loops, we do something like this.
 
 ```js
-let matrix = [[1, 0][(0, 1)]];
+let matrix = [
+  [1, 0],
+  [0, 1],
+];
 
 // this loop prints out:
 // (1, 0)
