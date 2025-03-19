@@ -4,9 +4,11 @@
 
 @plugin '@tailwindcss/typography';
 
+@custom-variant light (@media (prefers-color-scheme: light));
+
 @theme {
-  --color-mega-blue: #2987d9;
-  --color-mega-blue-dark: #282ed8;
+  --color-mega-blue: #282ed8;
+  --color-mega-blue-light: #2987d9;
 
   --font-fredoka: Fredoka Variable, sans-serif;
   --font-sans: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif,
@@ -14,7 +16,7 @@
 }
 
 .link {
-  @apply text-blue-700;
-  @apply dark:text-blue-300;
+  @apply text-blue-300;
+  @apply light:text-blue-700;
   @apply underline;
 }
