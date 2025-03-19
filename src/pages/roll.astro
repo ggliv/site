@@ -1,0 +1,30 @@
+---
+import HomeLayout from "@/layouts/HomeLayout.astro";
+import siteConfig from "@/config";
+---
+
+<HomeLayout
+  fullTitle={"Roll | " + siteConfig.siteTitle}
+  description="Blogs/webrings/buttons galore!"
+>
+  <div class="max-w-[90%] md:max-w-[75%] mx-auto flex flex-col gap-8">
+    <a href="/" class="link">&crarr; Back Home</a>
+    <p class=""
+      >Roll call! This page is for linking out to other blogs, organizations,
+      sites, etc. that I like and want to show to other people. Things look a
+      little barren right now, but I'm sure it'll fill up in time.</p
+    >
+    <div></div>
+    <div>
+      <a
+        href="https://ring.purduehackers.com/previous?host=ggliv.com%2Froll"
+        class="link">&#129144;</a
+      >
+      <a href="https://ring.purduehackers.com" class="link">Purdue Hackers</a>
+      <a
+        href="https://ring.purduehackers.com/next?host=ggliv.com%2Froll"
+        class="link">&#129146;</a
+      >
+    </div>
+  </div>
+</HomeLayout>
