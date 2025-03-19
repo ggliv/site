@@ -1,5 +1,5 @@
 ---
-import "@/global.css"
+import "@/global.css";
 ---
 
 <!doctype html>
@@ -20,13 +20,15 @@ import "@/global.css"
       "item-center",
       "justify-center",
       "text-center",
-      "bg-white",
-      "text-black",
-      "dark:bg-neutral-900",
-      "dark:text-white",
+      "bg-neutral-900",
+      "light:bg-white",
+      "text-white",
+      "light:text-black",
     ]}
   >
-    <div class="mt-2em text-3xl dark:brightness-125">&#128031;</div>
+    <div class="mt-2em text-3xl brightness-125 light:brightness-100"
+      >&#128031;</div
+    >
     <h1 class="text-3xl">404: Not Found</h1>
     <p class="max-w-[90%] mx-auto">
       Couldn't find the page you requested. If this page really should exist,
@@ -34,10 +36,12 @@ import "@/global.css"
       rot!
     </p>
     <a
-      class="underline text-sky-500 dark:text-sky-300"
+      class="underline text-sky-300 light:text-sky-500"
       href="/"
       set:text="Back to safer waters"
     />
-    <div class="mb-2em text-3xl dark:brightness-125">&#128031;</div>
+    <div class="mb-2em text-3xl brightness-125 light:brightness-100"
+      >&#128031;</div
+    >
   </body>
 </html>
