@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogLayout from "@/layouts/BlogLayout.astro";
 import { tags, postsWithTag, formatDate, slugify } from "@/util.ts";
 
 export const getStaticPaths = async () =>
@@ -10,7 +10,7 @@ export const getStaticPaths = async () =>
 const { tag } = Astro.params;
 ---
 
-<BaseLayout title={`Posts tagged with #${tag}`}>
+<BlogLayout title={`Posts tagged with #${tag}`}>
   <ul class="list-disc list-outside ml-[1rem]">
     {
       postsWithTag(tag)
@@ -27,4 +27,4 @@ const { tag } = Astro.params;
         ))
     }
   </ul>
-</BaseLayout>
+</BlogLayout>
