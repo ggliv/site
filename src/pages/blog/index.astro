@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogLayout from "@/layouts/BlogLayout.astro";
 import siteConfig from "@/config.ts";
 import { posts, tags, slugify } from "@/util.ts";
 
@@ -14,7 +14,7 @@ for (const post of posts) {
 }
 ---
 
-<BaseLayout title="Blog Index" description={siteConfig.blogDescription}>
+<BlogLayout title="Blog Index" description={siteConfig.blogDescription}>
   <div class="space-y-[1rem]">
     {
       tags.length > 0 && (
@@ -48,4 +48,4 @@ for (const post of posts) {
         ))
     }
   </div>
-</BaseLayout>
+</BlogLayout>
