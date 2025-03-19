@@ -1,9 +1,9 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogLayout from "@/layouts/BlogLayout.astro";
 import { tags, postsWithTag } from "@/util.ts";
 ---
 
-<BaseLayout title="Tags">
+<BlogLayout title="Tags">
   <ul class="list-disc list-outside ml-[1rem]">
     {
       tags
@@ -19,4 +19,4 @@ import { tags, postsWithTag } from "@/util.ts";
         ))
     }
   </ul>
-</BaseLayout>
+</BlogLayout>

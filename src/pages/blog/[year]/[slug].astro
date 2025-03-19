@@ -1,5 +1,5 @@
 ---
-import BaseLayout from "@/layouts/BaseLayout.astro";
+import BlogLayout from "@/layouts/BlogLayout.astro";
 import Prose from "@/components/Prose.astro";
 import { getCollection, render } from "astro:content";
 import { formatDate } from "@/util.ts";
@@ -15,7 +15,7 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BlogLayout title={post.data.title} description={post.data.description}>
   <div class="text-lg">
     {
       post.data.tags && (
@@ -42,4 +42,4 @@ const { Content } = await render(post);
   <Prose>
     <Content />
   </Prose>
-</BaseLayout>
+</BlogLayout>
