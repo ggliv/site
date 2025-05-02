@@ -1,0 +1,238 @@
+---
+title: Finding Optimal Tours at Home
+date: 2025-05-01
+description: In pursuit of the fastest available route
+tags: ["algorithms"]
+---
+
+Recently, some researchers at the University of Waterloo [found the shortest possible walking tour](https://www.math.uwaterloo.ca/tsp/korea/index.html) of 81,998 South Korean bars. Hey, I live in a college town. We have a lot of bars here too. I'm desperate for a distraction from the tedium of studying for finals, so let's find our own [fastest available route](https://www.youtube.com/watch?v=jh09uIN6tl0)!
+
+# Some Background
+
+When I say "optimal tour", I'm really talking about a solution to an instance of the [travelling salesman problem](https://en.wikipedia.org/wiki/Travelling_salesman_problem) (aka TSP). In short: given a list of destinations, we want to determine the order we should visit them in so that some metric (usually distance or travel time) is as small as possible. Think about using your favorite mapping app. If you were picking up a few friends to take them back to your place, you'd want want your app to take you on the quickest route.
+
+If you didn't know any better, this might seem like an easy problem to solve. Perhaps we can always pick up the next closest person at each stop? This turns out to not always work! For example, consider this situation where Alice wants to pick up her friends Bob, Carol, and Dan. Circles represent destinations and the lines represent the routes between them. The numbers next to each line indicate how long it would take to travel between the paired destinations (so smaller is better).
+
+![Weighted, undirected graph of Alice's friends](@/assets/images/alice_route.svg)
+
+Using the proposed "next-closest" approach, Alice would visit Bob first, then Dan, then Carol, then go home for a total travel time of 9. However, the best route in this case is to get Carol, then Bob, and finally Dan for a time of 8.
+
+As a matter of fact, the TSP is something called an [NP-hard](https://en.wikipedia.org/wiki/NP-hardness) problem. Speaking broadly, this means that there is [almost certainly](https://en.wikipedia.org/wiki/P_versus_NP_problem) no quick way to find the correct answer. Here, "quick" means that the challenge of finding a solution doesn't blow up too fast as you increase the number of friends Alice wants to visit. If you were able to find a quick solution to the TSP, you'd quite literally [win a million bucks](https://en.wikipedia.org/wiki/Millennium_Prize_Problems).
+
+Long story short, finding an optimal tour is generally a very challenging thing to do. With that being said, tours with a small(ish) number of destinations are feasible to solve on home computers using some tricks to cut down on execution time.
+
+# The Process
+
+Those UWaterloo researchers were kind enough to provide [an overview](https://www.math.uwaterloo.ca/tsp/korea/computation.html) of their methods, so we can save ourselves some effort and just follow in their footsteps. The process is broadly broken down into these steps:
+
+1. Pick out your target destinations
+2. Figure out how long it takes to walk between each pair of destinations
+3. Toss the destinations and their travel times into some clever software
+
+We'll be using [OpenStreetMap](https://www.openstreetmap.org/) to find our bars, [OSRM](https://project-osrm.org/) to calculate travel times, and both [LKH](http://webhotel4.ruc.dk/~keld/research/LKH/) + [Concorde](https://www.math.uwaterloo.ca/tsp/concorde.html) to find the shortest tour.
+
+# Fun With Maps
+
+We'll be looking at bars in downtown Athens. OpenStreetMap has three different labels for locations that serve alcohol: `bar`, `biergarten`, and `pub`. There are no biergartens in Athens (as far as I know), so we'll just search for the first and last type.
+
+For the sake of this project, let's define "downtown Athens" as "within 1 km of the Arch".[^arch] We can find the bars and pubs within this area using the following [Overpass QL](https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL) query:
+
+```
+[out:json][timeout:25];
+// the arch
+{{center=33.9575243, -83.3752855}}
+// 1km
+{{radius=1000}}
+(
+    nwr[amenity=bar](around:{{radius}}, {{center}});
+    nwr[amenity=pub](around:{{radius}}, {{center}});
+);
+out geom;
+```
+
+If we run this query through [overpass turbo](https://overpass-turbo.eu/s/23kc) (an online OpenStreetMap API frontend), we can export the resulting matches as GeoJSON for later use.
+
+![Map displaying overpass turbo query results](@/assets/images/ot_results.webp)
+
+Now we need to set up OSRM to calculate the walking time between these locations. To start with, we need to download a copy of the OpenStreetMap data for the area we're working with. The wonderful Geofabrik project provides [regularly updated dumps](https://download.geofabrik.de/) of this data. Let's grab the information for the state of Georgia.
+
+```console
+$ wget 'https://download.geofabrik.de/north-america/us/georgia-latest.osm.pbf'
+```
+
+Now we need to do some preprocessing on this data so OSRM can more easily use it. The developers of OSRM conveniently provide container images for their software, so we can get this done quickly with something like Docker or Podman.
+
+```console
+# apply walking profile to map data
+$ podman run -t -v "${PWD}:/data" docker.io/osrm/osrm-backend osrm-extract -p /opt/foot.lua /data/georgia-latest.osm.pbf
+# partition map data
+$ podman run -t -v "${PWD}:/data" docker.io/osrm/osrm-backend osrm-partition /data/georgia-latest.osrm
+# optimize partitioned map data
+$ podman run -t -v "${PWD}:/data" docker.io/osrm/osrm-backend osrm-customize /data/georgia-latest.osrm
+```
+
+With the map data preprocessed, we can start the backend software.
+
+```console
+$ podman run -it -p 5000:5000 -v "${PWD}:/data" docker.io/osrm/osrm-backend osrm-routed --algorithm mld /data/georgia-latest.osrm
+```
+
+OSRM requires its arguments to be formatted in a particular way, so we use the command-line JSON processing tool `jq` to massage the GeoJSON data we got earlier into the correct form. We also want the first set of coordinates to be our start and end point, in this case the Arch. After that we query our local OSRM server for the distance between the bars, extract the table we care about, and save it to a new file.
+
+```console
+$ jq_out=$(jq --raw-output '[.features[].geometry.coordinates | join(",")] | join(";")' export.geojson)
+$ query_coords="-83.3752855,33.9575243;${jq_out}"
+$ curl "http://localhost:5000/table/v1/foot/${query_coords}?annotations=duration" | jq '.durations' > bars_osrm_table.json
+```
+
+That's all we need from OpenStreetMap and OSRM!
+
+# Feeding the Machine
+
+We're now going to feed the data we just got from OSRM into some TSP-solving software.[^solvers] Both of the ones we're going to use take input in the form of [TSPLIB](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/) files, a specialty format used to describe TSPs. The full specification is [available here](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf), but here's the upshot of what we need:
+
+```
+COMMENT: What does this file contain?
+NAME: Athens Bars and Pubs (duration)
+COMMENT: This is a (potentially asymmetric) travelling salesman problem
+TYPE: ATSP
+COMMENT: Total number of nodes (including starting point)
+DIMENSION: 45
+COMMENT: How are edge weights given? Explicitly, we just calculated them with OSRM.
+EDGE_WEIGHT_TYPE: EXPLICIT
+COMMENT: How do we give edge weights? OSRM outputs a full matrix, so we use that.
+EDGE_WEIGHT_FORMAT: FULL_MATRIX
+EDGE_WEIGHT_SECTION
+<space-separated rows of edge weights>
+EOF
+```
+
+To get those OSRM edge weights into the TSPLIB format, we can once again crack out our trusty friend `jq`.a OSRM outputs walking times at a precision of 1/10 of a second, but TSPLIB edge weights must be integers. To fix this discrepancy, we multiply each weight by 10 in the `jq` command.
+
+```console
+$ jq --raw-output '.[] | map(. * 10) | join(" ")' bars_osrm_table.json
+```
+
+Once we fill out the TSPLIB file with that data, we're ready to start finding routes! We're going to start with [LKH](http://webhotel4.ruc.dk/~keld/research/LKH/), an effective heuristic solver. LKH's output isn't always optimal, but its outputs are at least very good. We'll use this very good route later to help another piece of software get the optimal route.
+
+Let's start by downloading and compiling the software.
+
+```console
+$ wget 'http://webhotel4.ruc.dk/~keld/research/LKH/LKH-2.0.10.tgz'
+$ tar xvf LKH-2.0.10.tgz
+$ cd LKH-2.0.10
+$ make
+```
+
+Now we need to make a parameters file for LKH to read. These are generally very simple, just telling LKH where to find the problem file and where to put the solution.
+
+```
+PROBLEM_FILE = bars.tsp
+TOUR_FILE = bars.tour
+```
+
+Now after a short computation with `./LKH bars.par`, we can open `bars.tour` to see that LKH was able to find a tour of length 23804 (about 40 minutes).
+
+Next, we're going to run a different solver called Concorde on our TSPLIB file. The last release of Concorde was in 2003, and I was having trouble getting the `configure` script to work for building from source, so we'll just [grab a precompiled binary](https://www.math.uwaterloo.ca/tsp/concorde/downloads/downloads.htm#:~:text=Concorde%20for%20Red%20Hat%20Linux%208.0) from their site.
+
+```console
+$ wget 'https://www.math.uwaterloo.ca/tsp/concorde/downloads/codes/linux24/concorde.gz'
+$ gunzip concorde.gz
+$ chmod +x concorde
+```
+
+Now we can set Concorde loose on the TSP problem after telling it that we think the optimal solution is better than 23805 (one more than what LKH told us).[^atsp]
+
+```console
+$ ./concorde -u 23805 bars.tsp
+./concorde -u 23805 bars.tsp
+Host: localhost Current process id: 3
+Using random seed 3735928559
+What does this file contain?
+Problem Name: Athens Bars and Pubs (duration)
+This is a (potentially asymmetric) travelling salesman problem
+Problem Type: TSP
+Total number of nodes
+Number of Nodes: 45
+How are edge weights given? Explicitly, we just calculated them with OSRM.
+Explicit Lengths (CC_MATRIXNORM)
+How do we give edge weights? OSRM outputs a full matrix, so we use that.
+Set initial upperbound to 23804 (from tour)
+  LP Value  1: 23136.500000  (0.00 seconds)
+  LP Value  2: 23624.500000  (0.01 seconds)
+  LP Value  3: 23729.000000  (0.02 seconds)
+  LP Value  4: 23804.000000  (0.02 seconds)
+New lower bound: 23804.000000
+Final lower bound 23804.000000, upper bound 23804.000000
+Exact lower bound: 23804.000000
+DIFF: 0.000000
+Final LP has 90 rows, 142 columns, 1371 nonzeros
+Optimal Solution: 23804.00
+Number of bbnodes: 1
+Total Running Time: 0.04 (seconds)
+```
+
+Great, Concorde says that 23804 is indeed the smallest possible tour length.
+
+# Results
+
+Now that we know that we have an optimal tour, we need to convert it back into a list of places for us to visit. Concorde placed its tour output in `bars.sol`, so we just need to do some processing on it with our original OpenStreetMap output to get the location names.
+
+```console
+$ tail -n+2 bars.sol | awk '{for(i=1;i<=NF;i++){printf"%s\n",$i-1}}' | tail -n+1 | xargs -I_ jq -r '.features[_].properties.name' export.geojson
+Nowhere Bar
+Empourium Rooftop and Lounge
+Magnolia's
+Bourbon Street
+The Double Barrel
+Buddha Bar
+Up Dawg
+1785 Bar & Grill
+The Clayton Social
+On The Rocks
+Moonshine Bar
+Flanagan's & The Half Moon Pub
+Blind Pig Tavern
+Boar's Head Lounge
+Wonderbar
+City Bar
+SandBar
+The Silver Dollar Bar
+Woodford
+Bar South
+Nowhere Bar
+Lumberjaxe
+Manhattan Cafe
+The World Famous
+Little Kings Shuffle Club
+Creature Comforts
+The Rook & Pawn
+Flicker Theatre & Bar
+Trappeze Pub
+Sister Louisa's Church
+Tropical Bar
+Five Bar
+Clarke's Collective
+The Roadhouse
+The Globe
+Cutters Pub
+Pauley's Crepe Bar
+Rye Bar
+General Beauregard's
+Bad Moon
+Allgood Lounge
+Cozy Bar
+Dooley's Bar & Grill
+Blue Sky Bar
+Walker's Coffee and Pub
+```
+
+There's our optimal bar crawl! Here's what it looks like [put on a map](https://osm.li/S5b):
+
+![Map displaying optimal route between bars](@/assets/images/optimal_bar_crawl.webp)
+
+[^arch]: For those unaware, the Arch is a landmark and public transit stop that delineates the border between north campus and downtown.
+
+[^solvers]: For problems that are this small, the first LKH pass doesn't make the process any faster. We only really need to run Concorde, but I'm trying to follow the researcher's process.
+
+[^atsp]: You actually have to change the TSP type on the TSPLIB file to a symmetric TSP (`TSP`) instead of an asymmetric TSP (`ATSP`). OSRM says it will sometimes output asymmetric distance tables, but in my case everything looked symmetric so the distinction doesn't really matter.
