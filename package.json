@@ -17,6 +17,7 @@
     "@fontsource-variable/fredoka": "^5.1.0",
     "@tailwindcss/vite": "^4.0.14",
     "astro": "^5.7.10",
+    "ogl": "^1.0.11",
     "tailwindcss": "^4.0.14",
     "typescript": "^5.5.4"
   },

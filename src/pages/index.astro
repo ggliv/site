@@ -1,6 +1,5 @@
 ---
-import { Picture } from "astro:assets";
-import profileImage from "@/assets/images/profile.png";
+import Headshot from "@/components/Headshot.astro";
 import siteConfig from "@/config";
 import "@/global.css";
 ---
@@ -66,20 +65,7 @@ import "@/global.css";
         "gap-[1rem]",
       ]}
     >
-      <Picture
-        src={profileImage}
-        alt="Profile shot of Gabe Livengood"
-        formats={["avif", "webp"]}
-        class:list={[
-          "w-[6.75em]",
-          "max-w-full",
-          "h-auto",
-          "rounded-full",
-          "border-4",
-          "border-[gray]",
-          "bg-white",
-        ]}
-      />
+      <Headshot width={270} height={270} />
       <div>
         <script>
           let greetings = ["Hey", "Howdy", "Sup", "Hi", "Yo", "Hello", "Heya"];
