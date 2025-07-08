@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Finding Optimal Tours at Home | Gabe Livengood</title><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#282ED8"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#2987D9"><meta property="og:type" content="website"><meta property="og:title" content="Finding Optimal Tours at Home"><meta property="og:image" content="//github.com/ggliv.png"><meta property="og:description" content="In pursuit of the fastest available route"><meta name="description" content="In pursuit of the fastest available route"><link rel="alternate" type="application/rss+xml" title="Blog RSS" href="/blog/feed.xml"><link rel="stylesheet" href="/_astro/_slug_.BV00Yjsh.css"></head> <body class="min-h-screen flex flex-col gap-8 bg-gray-900 text-gray-100 light:bg-gray-100 light:text-gray-900"> <header> <div class="h-[1rem] w-full bg-mega-blue light:bg-mega-blue-light"></div> <h1 class="py-[0.5rem] pl-[0.5rem] pr-[1rem] rounded-br-xl w-fit bg-mega-blue light:bg-mega-blue-light font-fredoka font-bold text-3xl text-white brightness-125"> <a href="/blog/">Gabe's Blog</a> </h1> </header> <main class="px-[1rem] md:w-[var(--breakpoint-md)] md:mx-auto"> <h1 class="mb-[1rem] font-bold text-5xl">Finding Optimal Tours at Home</h1>  <div class="text-lg"> <p>
+Filed under  <span class="whitespace-nowrap">
+[  <a class="link" href="/blog/tags/algorithms">#algorithms</a> 
+]
+</span> </p> <p class="mb-[2rem]">01 May 2025</p> </div> <div class="prose prose-invert light:prose-slate max-w-none leading-snug prose-headings:font-bold prose-h1:text-4xl prose-a:text-blue-300 light:prose-a:text-blue-700 prose-a:underline">  <p>Recently, some researchers at the University of Waterloo <a href="https://www.math.uwaterloo.ca/tsp/korea/index.html">found the shortest possible walking tour</a> of 81,998 South Korean bars. Hey, I live in a college town. We have a lot of bars here too. I’m desperate for a distraction from the tedium of studying for finals, so let’s find our own <a href="https://www.youtube.com/watch?v=jh09uIN6tl0">fastest available route</a>!</p>
+<h1 id="some-background">Some Background</h1>
+<p>When I say “optimal tour”, I’m really talking about a solution to an instance of the <a href="https://en.wikipedia.org/wiki/Travelling_salesman_problem">travelling salesman problem</a> (aka TSP). In short: given a list of destinations, we want to determine the order we should visit them in so that some metric (usually distance or travel time) is as small as possible. Think about using your favorite mapping app. If you were picking up a few friends to take them back to your place, you’d want want your app to take you on the quickest route.</p>
+<p>If you didn’t know any better, this might seem like an easy problem to solve. Perhaps we can always pick up the next closest person at each stop? This turns out to not always work! For example, consider this situation where Alice wants to pick up her friends Bob, Carol, and Dan. Circles represent destinations and the lines represent the routes between them. The numbers next to each line indicate how long it would take to travel between the paired destinations (so smaller is better).</p>
+<p><img src="/_astro/alice_route.B1v2Iud3_Z2vBwxz.svg" alt="Weighted, undirected graph of Alice's friends" width="900" height="375" loading="lazy" decoding="async"></p>
+<p>Using the proposed “next-closest” approach, Alice would visit Bob first, then Dan, then Carol, then go home for a total travel time of 9. However, the best route in this case is to get Carol, then Bob, and finally Dan for a time of 8.</p>
+<p>As a matter of fact, the TSP is something called an <a href="https://en.wikipedia.org/wiki/NP-hardness">NP-hard</a> problem. Speaking broadly, this means that there is <a href="https://en.wikipedia.org/wiki/P_versus_NP_problem">almost certainly</a> no quick way to find the correct answer. Here, “quick” means that the challenge of finding a solution doesn’t blow up too fast as you increase the number of friends Alice wants to visit. If you were able to find a quick solution to the TSP, you’d quite literally <a href="https://en.wikipedia.org/wiki/Millennium_Prize_Problems">win a million bucks</a>.</p>
+<p>Long story short, finding an optimal tour is generally a very challenging thing to do. With that being said, tours with a small(ish) number of destinations are feasible to solve on home computers using some tricks to cut down on execution time.</p>
+<h1 id="the-process">The Process</h1>
+<p>Those UWaterloo researchers were kind enough to provide <a href="https://www.math.uwaterloo.ca/tsp/korea/computation.html">an overview</a> of their methods, so we can save ourselves some effort and just follow in their footsteps. The process is broadly broken down into these steps:</p>
+<ol>
+<li>Pick out your target destinations</li>
+<li>Figure out how long it takes to walk between each pair of destinations</li>
+<li>Toss the destinations and their travel times into some clever software</li>
+</ol>
+<p>We’ll be using <a href="https://www.openstreetmap.org/">OpenStreetMap</a> to find our bars, <a href="https://project-osrm.org/">OSRM</a> to calculate travel times, and both <a href="http://webhotel4.ruc.dk/~keld/research/LKH/">LKH</a> + <a href="https://www.math.uwaterloo.ca/tsp/concorde.html">Concorde</a> to find the shortest tour.</p>
+<h1 id="fun-with-maps">Fun With Maps</h1>
+<p>We’ll be looking at bars in downtown Athens. OpenStreetMap has three different labels for locations that serve alcohol: <code>bar</code>, <code>biergarten</code>, and <code>pub</code>. There are no biergartens in Athens (as far as I know), so we’ll just search for the first and last type.</p>
+<p>For the sake of this project, let’s define “downtown Athens” as “within 1 km of the Arch”.<sup><a href="#user-content-fn-arch" id="user-content-fnref-arch" data-footnote-ref aria-describedby="footnote-label">1</a></sup> We can find the bars and pubs within this area using the following <a href="https://wiki.openstreetmap.org/wiki/Overpass_API/Overpass_QL">Overpass QL</a> query:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>[out:json][timeout:25];</span></span>
+<span class="line"><span>// the arch</span></span>
+<span class="line"><span>{{center=33.9575243, -83.3752855}}</span></span>
+<span class="line"><span>// 1km</span></span>
+<span class="line"><span>{{radius=1000}}</span></span>
+<span class="line"><span>(</span></span>
+<span class="line"><span>    nwr[amenity=bar](around:{{radius}}, {{center}});</span></span>
+<span class="line"><span>    nwr[amenity=pub](around:{{radius}}, {{center}});</span></span>
+<span class="line"><span>);</span></span>
+<span class="line"><span>out geom;</span></span></code></pre>
+<p>If we run this query through <a href="https://overpass-turbo.eu/s/23kc">overpass turbo</a> (an online OpenStreetMap API frontend), we can export the resulting matches as GeoJSON for later use.</p>
+<p><img src="/_astro/ot_results.C7ZY8Hav_Z1X9hcW.webp" alt="Map displaying overpass turbo query results" width="864" height="552" loading="lazy" decoding="async"></p>
+<p>Now we need to set up OSRM to calculate the walking time between these locations. To start with, we need to download a copy of the OpenStreetMap data for the area we’re working with. The wonderful Geofabrik project provides <a href="https://download.geofabrik.de/">regularly updated dumps</a> of this data. Let’s grab the information for the state of Georgia.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ wget </span><span style="color:#9ECBFF">&#39;https://download.geofabrik.de/north-america/us/georgia-latest.osm.pbf&#39;</span></span></code></pre>
+<p>Now we need to do some preprocessing on this data so OSRM can more easily use it. The developers of OSRM conveniently provide container images for their software, so we can get this done quickly with something like Docker or Podman.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8"># apply walking profile to map data</span></span>
+<span class="line"><span style="color:#E1E4E8">$ podman run -t -v </span><span style="color:#9ECBFF">&quot;${</span><span style="color:#E1E4E8">PWD</span><span style="color:#9ECBFF">}:/data&quot;</span><span style="color:#E1E4E8"> docker.io/osrm/osrm-backend osrm-extract -p /opt/foot.lua /data/georgia-latest.osm.pbf</span></span>
+<span class="line"><span style="color:#E1E4E8"># partition map data</span></span>
+<span class="line"><span style="color:#E1E4E8">$ podman run -t -v </span><span style="color:#9ECBFF">&quot;${</span><span style="color:#E1E4E8">PWD</span><span style="color:#9ECBFF">}:/data&quot;</span><span style="color:#E1E4E8"> docker.io/osrm/osrm-backend osrm-partition /data/georgia-latest.osrm</span></span>
+<span class="line"><span style="color:#E1E4E8"># optimize partitioned map data</span></span>
+<span class="line"><span style="color:#E1E4E8">$ podman run -t -v </span><span style="color:#9ECBFF">&quot;${</span><span style="color:#E1E4E8">PWD</span><span style="color:#9ECBFF">}:/data&quot;</span><span style="color:#E1E4E8"> docker.io/osrm/osrm-backend osrm-customize /data/georgia-latest.osrm</span></span></code></pre>
+<p>With the map data preprocessed, we can start the backend software.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ podman run -it -p 5000:5000 -v </span><span style="color:#9ECBFF">&quot;${</span><span style="color:#E1E4E8">PWD</span><span style="color:#9ECBFF">}:/data&quot;</span><span style="color:#E1E4E8"> docker.io/osrm/osrm-backend osrm-routed --algorithm mld /data/georgia-latest.osrm</span></span></code></pre>
+<p>OSRM requires its arguments to be formatted in a particular way, so we use the command-line JSON processing tool <code>jq</code> to massage the GeoJSON data we got earlier into the correct form. We also want the first set of coordinates to be our start and end point, in this case the Arch. After that we query our local OSRM server for the distance between the bars, extract the table we care about, and save it to a new file.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ jq_out</span><span style="color:#F97583">=</span><span style="color:#E1E4E8">$(</span><span style="color:#B392F0">jq</span><span style="color:#79B8FF"> --raw-output</span><span style="color:#9ECBFF"> &#39;[.features[].geometry.coordinates | join(&quot;,&quot;)] | join(&quot;;&quot;)&#39;</span><span style="color:#9ECBFF"> export.geojson</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">$ query_coords</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">&quot;-83.3752855,33.9575243;${</span><span style="color:#E1E4E8">jq_out</span><span style="color:#9ECBFF">}&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">$ curl </span><span style="color:#9ECBFF">&quot;http://localhost:5000/table/v1/foot/${</span><span style="color:#E1E4E8">query_coords</span><span style="color:#9ECBFF">}?annotations=duration&quot;</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> jq</span><span style="color:#9ECBFF"> &#39;.durations&#39;</span><span style="color:#F97583"> &gt;</span><span style="color:#9ECBFF"> bars_osrm_table.json</span></span></code></pre>
+<p>That’s all we need from OpenStreetMap and OSRM!</p>
+<h1 id="feeding-the-machine">Feeding the Machine</h1>
+<p>We’re now going to feed the data we just got from OSRM into some TSP-solving software.<sup><a href="#user-content-fn-solvers" id="user-content-fnref-solvers" data-footnote-ref aria-describedby="footnote-label">2</a></sup> Both of the ones we’re going to use take input in the form of <a href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/">TSPLIB</a> files, a specialty format used to describe TSPs. The full specification is <a href="http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/tsp95.pdf">available here</a>, but here’s the upshot of what we need:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>COMMENT: What does this file contain?</span></span>
+<span class="line"><span>NAME: Athens Bars and Pubs (duration)</span></span>
+<span class="line"><span>COMMENT: This is a (potentially asymmetric) travelling salesman problem</span></span>
+<span class="line"><span>TYPE: ATSP</span></span>
+<span class="line"><span>COMMENT: Total number of nodes (including starting point)</span></span>
+<span class="line"><span>DIMENSION: 45</span></span>
+<span class="line"><span>COMMENT: How are edge weights given? Explicitly, we just calculated them with OSRM.</span></span>
+<span class="line"><span>EDGE_WEIGHT_TYPE: EXPLICIT</span></span>
+<span class="line"><span>COMMENT: How do we give edge weights? OSRM outputs a full matrix, so we use that.</span></span>
+<span class="line"><span>EDGE_WEIGHT_FORMAT: FULL_MATRIX</span></span>
+<span class="line"><span>EDGE_WEIGHT_SECTION</span></span>
+<span class="line"><span>&lt;space-separated rows of edge weights&gt;</span></span>
+<span class="line"><span>EOF</span></span></code></pre>
+<p>To get those OSRM edge weights into the TSPLIB format, we can once again crack out our trusty friend <code>jq</code>.a OSRM outputs walking times at a precision of 1/10 of a second, but TSPLIB edge weights must be integers. To fix this discrepancy, we multiply each weight by 10 in the <code>jq</code> command.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ jq --raw-output </span><span style="color:#9ECBFF">&#39;.[] | map(. * 10) | join(&quot; &quot;)&#39;</span><span style="color:#E1E4E8"> bars_osrm_table.json</span></span></code></pre>
+<p>Once we fill out the TSPLIB file with that data, we’re ready to start finding routes! We’re going to start with <a href="http://webhotel4.ruc.dk/~keld/research/LKH/">LKH</a>, an effective heuristic solver. LKH’s output isn’t always optimal, but its outputs are at least very good. We’ll use this very good route later to help another piece of software get the optimal route.</p>
+<p>Let’s start by downloading and compiling the software.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ wget </span><span style="color:#9ECBFF">&#39;http://webhotel4.ruc.dk/~keld/research/LKH/LKH-2.0.10.tgz&#39;</span></span>
+<span class="line"><span style="color:#E1E4E8">$ tar xvf LKH-2.0.10.tgz</span></span>
+<span class="line"><span style="color:#E1E4E8">$ cd LKH-2.0.10</span></span>
+<span class="line"><span style="color:#E1E4E8">$ make</span></span></code></pre>
+<p>Now we need to make a parameters file for LKH to read. These are generally very simple, just telling LKH where to find the problem file and where to put the solution.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="plaintext"><code><span class="line"><span>PROBLEM_FILE = bars.tsp</span></span>
+<span class="line"><span>TOUR_FILE = bars.tour</span></span></code></pre>
+<p>Now after a short computation with <code>./LKH bars.par</code>, we can open <code>bars.tour</code> to see that LKH was able to find a tour of length 23804 (about 40 minutes).</p>
+<p>Next, we’re going to run a different solver called Concorde on our TSPLIB file. The last release of Concorde was in 2003, and I was having trouble getting the <code>configure</code> script to work for building from source, so we’ll just <a href="https://www.math.uwaterloo.ca/tsp/concorde/downloads/downloads.htm#:~:text=Concorde%20for%20Red%20Hat%20Linux%208.0">grab a precompiled binary</a> from their site.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ wget </span><span style="color:#9ECBFF">&#39;https://www.math.uwaterloo.ca/tsp/concorde/downloads/codes/linux24/concorde.gz&#39;</span></span>
+<span class="line"><span style="color:#E1E4E8">$ gunzip concorde.gz</span></span>
+<span class="line"><span style="color:#E1E4E8">$ chmod +x concorde</span></span></code></pre>
+<p>Now we can set Concorde loose on the TSP problem after telling it that we think the optimal solution is better than 23805 (one more than what LKH told us).<sup><a href="#user-content-fn-atsp" id="user-content-fnref-atsp" data-footnote-ref aria-describedby="footnote-label">3</a></sup></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ ./concorde -u 23805 bars.tsp</span></span>
+<span class="line"><span style="color:#79B8FF">./concorde -u 23805 bars.tsp</span></span>
+<span class="line"><span style="color:#79B8FF">Host: localhost Current process id: 3</span></span>
+<span class="line"><span style="color:#79B8FF">Using random seed 3735928559</span></span>
+<span class="line"><span style="color:#79B8FF">What does this file contain?</span></span>
+<span class="line"><span style="color:#79B8FF">Problem Name: Athens Bars and Pubs (duration)</span></span>
+<span class="line"><span style="color:#79B8FF">This is a (potentially asymmetric) travelling salesman problem</span></span>
+<span class="line"><span style="color:#79B8FF">Problem Type: TSP</span></span>
+<span class="line"><span style="color:#79B8FF">Total number of nodes</span></span>
+<span class="line"><span style="color:#79B8FF">Number of Nodes: 45</span></span>
+<span class="line"><span style="color:#79B8FF">How are edge weights given? Explicitly, we just calculated them with OSRM.</span></span>
+<span class="line"><span style="color:#79B8FF">Explicit Lengths (CC_MATRIXNORM)</span></span>
+<span class="line"><span style="color:#79B8FF">How do we give edge weights? OSRM outputs a full matrix, so we use that.</span></span>
+<span class="line"><span style="color:#79B8FF">Set initial upperbound to 23804 (from tour)</span></span>
+<span class="line"><span style="color:#79B8FF">  LP Value  1: 23136.500000  (0.00 seconds)</span></span>
+<span class="line"><span style="color:#79B8FF">  LP Value  2: 23624.500000  (0.01 seconds)</span></span>
+<span class="line"><span style="color:#79B8FF">  LP Value  3: 23729.000000  (0.02 seconds)</span></span>
+<span class="line"><span style="color:#79B8FF">  LP Value  4: 23804.000000  (0.02 seconds)</span></span>
+<span class="line"><span style="color:#79B8FF">New lower bound: 23804.000000</span></span>
+<span class="line"><span style="color:#79B8FF">Final lower bound 23804.000000, upper bound 23804.000000</span></span>
+<span class="line"><span style="color:#79B8FF">Exact lower bound: 23804.000000</span></span>
+<span class="line"><span style="color:#79B8FF">DIFF: 0.000000</span></span>
+<span class="line"><span style="color:#79B8FF">Final LP has 90 rows, 142 columns, 1371 nonzeros</span></span>
+<span class="line"><span style="color:#79B8FF">Optimal Solution: 23804.00</span></span>
+<span class="line"><span style="color:#79B8FF">Number of bbnodes: 1</span></span>
+<span class="line"><span style="color:#79B8FF">Total Running Time: 0.04 (seconds)</span></span></code></pre>
+<p>Great, Concorde says that 23804 is indeed the smallest possible tour length.</p>
+<h1 id="results">Results</h1>
+<p>Now that we know that we have an optimal tour, we need to convert it back into a list of places for us to visit. Concorde placed its tour output in <code>bars.sol</code>, so we just need to do some processing on it with our original OpenStreetMap output to get the location names.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="console"><code><span class="line"><span style="color:#E1E4E8">$ tail -n+2 bars.sol </span><span style="color:#F97583">|</span><span style="color:#B392F0"> awk</span><span style="color:#9ECBFF"> &#39;{for(i=1;i&lt;=NF;i++){printf&quot;%s\n&quot;,$i-1}}&#39;</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> tail</span><span style="color:#79B8FF"> -n+1</span><span style="color:#F97583"> |</span><span style="color:#B392F0"> xargs</span><span style="color:#79B8FF"> -I_</span><span style="color:#9ECBFF"> jq</span><span style="color:#79B8FF"> -r</span><span style="color:#9ECBFF"> &#39;.features[_].properties.name&#39;</span><span style="color:#9ECBFF"> export.geojson</span></span>
+<span class="line"><span style="color:#79B8FF">Nowhere Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Empourium Rooftop and Lounge</span></span>
+<span class="line"><span style="color:#79B8FF">Magnolia&#39;s</span></span>
+<span class="line"><span style="color:#79B8FF">Bourbon Street</span></span>
+<span class="line"><span style="color:#79B8FF">The Double Barrel</span></span>
+<span class="line"><span style="color:#79B8FF">Buddha Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Up Dawg</span></span>
+<span class="line"><span style="color:#79B8FF">1785 Bar &amp; Grill</span></span>
+<span class="line"><span style="color:#79B8FF">The Clayton Social</span></span>
+<span class="line"><span style="color:#79B8FF">On The Rocks</span></span>
+<span class="line"><span style="color:#79B8FF">Moonshine Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Flanagan&#39;s &amp; The Half Moon Pub</span></span>
+<span class="line"><span style="color:#79B8FF">Blind Pig Tavern</span></span>
+<span class="line"><span style="color:#79B8FF">Boar&#39;s Head Lounge</span></span>
+<span class="line"><span style="color:#79B8FF">Wonderbar</span></span>
+<span class="line"><span style="color:#79B8FF">City Bar</span></span>
+<span class="line"><span style="color:#79B8FF">SandBar</span></span>
+<span class="line"><span style="color:#79B8FF">The Silver Dollar Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Woodford</span></span>
+<span class="line"><span style="color:#79B8FF">Bar South</span></span>
+<span class="line"><span style="color:#79B8FF">Nowhere Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Lumberjaxe</span></span>
+<span class="line"><span style="color:#79B8FF">Manhattan Cafe</span></span>
+<span class="line"><span style="color:#79B8FF">The World Famous</span></span>
+<span class="line"><span style="color:#79B8FF">Little Kings Shuffle Club</span></span>
+<span class="line"><span style="color:#79B8FF">Creature Comforts</span></span>
+<span class="line"><span style="color:#79B8FF">The Rook &amp; Pawn</span></span>
+<span class="line"><span style="color:#79B8FF">Flicker Theatre &amp; Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Trappeze Pub</span></span>
+<span class="line"><span style="color:#79B8FF">Sister Louisa&#39;s Church</span></span>
+<span class="line"><span style="color:#79B8FF">Tropical Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Five Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Clarke&#39;s Collective</span></span>
+<span class="line"><span style="color:#79B8FF">The Roadhouse</span></span>
+<span class="line"><span style="color:#79B8FF">The Globe</span></span>
+<span class="line"><span style="color:#79B8FF">Cutters Pub</span></span>
+<span class="line"><span style="color:#79B8FF">Pauley&#39;s Crepe Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Rye Bar</span></span>
+<span class="line"><span style="color:#79B8FF">General Beauregard&#39;s</span></span>
+<span class="line"><span style="color:#79B8FF">Bad Moon</span></span>
+<span class="line"><span style="color:#79B8FF">Allgood Lounge</span></span>
+<span class="line"><span style="color:#79B8FF">Cozy Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Dooley&#39;s Bar &amp; Grill</span></span>
+<span class="line"><span style="color:#79B8FF">Blue Sky Bar</span></span>
+<span class="line"><span style="color:#79B8FF">Walker&#39;s Coffee and Pub</span></span></code></pre>
+<p>There’s our optimal bar crawl! Here’s what it looks like <a href="https://osm.li/S5b">put on a map</a>:</p>
+<p><img src="/_astro/optimal_bar_crawl.CpgH5oeJ_CJNiD.webp" alt="Map displaying optimal route between bars" width="1490" height="1028" loading="lazy" decoding="async"></p>
+<section data-footnotes class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-arch">
+<p>For those unaware, the Arch is a landmark and public transit stop that delineates the border between north campus and downtown. <a href="#user-content-fnref-arch" data-footnote-backref aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-solvers">
+<p>For problems that are this small, the first LKH pass doesn’t make the process any faster. We only really need to run Concorde, but I’m trying to follow the researcher’s process. <a href="#user-content-fnref-solvers" data-footnote-backref aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-atsp">
+<p>You actually have to change the TSP type on the TSPLIB file to a symmetric TSP (<code>TSP</code>) instead of an asymmetric TSP (<code>ATSP</code>). OSRM says it will sometimes output asymmetric distance tables, but in my case everything looked symmetric so the distinction doesn’t really matter. <a href="#user-content-fnref-atsp" data-footnote-backref aria-label="Back to reference 3" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>  </div>  </main> <footer class="mt-auto"> <div class="text-center w-full light:bg-gray-200 text-gray-500 bg-gray-800 p-[0.5rem]"> <div> <a class="md:inline-block" href="/">Home</a>
+&middot;
+<a class="md:inline-block" href="/blog/feed.xml">RSS</a>
+&middot;
+<a class="md:inline-block" href="#">Top</a> </div> <div> <p class="group md:inline-block"> <span class="inline-block motion-safe:group-hover:[transform:rotateY(180deg)] transition-transform">&copy;</span> 2023-2025 Gabe Livengood
+</p> <span class="hidden md:inline-block">&middot;</span> <p class="md:inline-block">
+Blog content is <a href="//creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA-4.0</a>. Code examples are <a href="//choosealicense.com/licenses/mit/">MIT</a>.
+</p> </div> </div> </footer> </body></html>

@@ -1,0 +1,896 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>JavaScript in a Nutshell | Gabe Livengood</title><meta name="theme-color" media="(prefers-color-scheme: dark)" content="#282ED8"><meta name="theme-color" media="(prefers-color-scheme: light)" content="#2987D9"><meta property="og:type" content="website"><meta property="og:title" content="JavaScript in a Nutshell"><meta property="og:image" content="//github.com/ggliv.png"><link rel="alternate" type="application/rss+xml" title="Blog RSS" href="/blog/feed.xml"><link rel="stylesheet" href="/_astro/_slug_.BV00Yjsh.css"></head> <body class="min-h-screen flex flex-col gap-8 bg-gray-900 text-gray-100 light:bg-gray-100 light:text-gray-900"> <header> <div class="h-[1rem] w-full bg-mega-blue light:bg-mega-blue-light"></div> <h1 class="py-[0.5rem] pl-[0.5rem] pr-[1rem] rounded-br-xl w-fit bg-mega-blue light:bg-mega-blue-light font-fredoka font-bold text-3xl text-white brightness-125"> <a href="/blog/">Gabe's Blog</a> </h1> </header> <main class="px-[1rem] md:w-[var(--breakpoint-md)] md:mx-auto"> <h1 class="mb-[1rem] font-bold text-5xl">JavaScript in a Nutshell</h1>  <div class="text-lg"> <p>
+Filed under  <span class="whitespace-nowrap">
+[  <a class="link" href="/blog/tags/javascript">#javascript</a> 
+]
+</span> </p> <p class="mb-[2rem]">25 August 2024</p> </div> <div class="prose prose-invert light:prose-slate max-w-none leading-snug prose-headings:font-bold prose-h1:text-4xl prose-a:text-blue-300 light:prose-a:text-blue-700 prose-a:underline">  <p>The following is an “intro to JavaScript” article that I wrote for the instructional wing of <a href="https://devdogs.uga.edu/">DevDogs</a>, a new full-stack development club at <a href="https://www.uga.edu/">UGA</a>. I’m fairly happy with how it turned out, so I figure I might as well contribute to the diaspora of JS tutorials on the internet by putting it out there on my personal site. Hopefully you find it helpful!</p>
+<hr/>
+<p>JavaScript (JS for short) is a dynamically typed, interpreted, multi-paradigm language. It also happens to be the <em>lingua franca</em> of the web. All the major browsers can run it to make the webpages they display interactive, and you can even use <a href="https://en.wikipedia.org/wiki/Node.js">some tooling</a> to run it on servers for back-end services. We’ll be using JS extensively in this club to create our front-ends, so it’ll serve you well to get familiar with it.</p>
+<p>This article is meant to help you hit the ground running quickly. If you’re here to review something specific, or you already feel pretty good about your JavaScript abilities, please feel free to aggressively skim the headings until you get to the parts you care about.</p>
+<p>If you feel like messing around with the examples given in this article, you can open up a live JavaScript interpreter in your browser to see how things play out. On Chrome, this can be done with Ctrl+Shift+J (Cmd+Opt+J for macOS). On Firefox, hit Ctrl+Shift+K (Cmd+Opt+K for macOS). Type things in at the bottom of the panel that pops up to run your JS code.</p>
+<p>That’s it for introductions. Let’s get in to it!</p>
+<h2 id="language-overview">Language overview</h2>
+<p>JavaScript’s syntax is generally C-flavored, so if you have experience in languages like C, C++, C#, or Java, you’ll feel right at home. That being said, there are some important differences that you should be aware of before you start writing code. Read on!</p>
+<h3 id="comments">Comments</h3>
+<p>Comments are portions of your source code that the interpreter won’t run. They’re typically used for documentation and other things that are intended for developers to read (not the computer). Single line comments start with two slashes (<code>//</code>) and run until the end of a line. Multi-line comments start with a slash-star (<code>/*</code>) and run until the next star-slash (<code>*/</code>).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#9ECBFF">&quot;something here will be run&quot;</span><span style="color:#E1E4E8">; </span><span style="color:#6A737D">// but this won&#39;t!</span></span>
+<span class="line"><span style="color:#6A737D">/*</span></span>
+<span class="line"><span style="color:#6A737D">multi-line comments are nice because they let you</span></span>
+<span class="line"><span style="color:#6A737D">break</span></span>
+<span class="line"><span style="color:#6A737D">things</span></span>
+<span class="line"><span style="color:#6A737D">up</span></span>
+<span class="line"><span style="color:#6A737D">*/</span></span></code></pre>
+<h3 id="semicolons">Semicolons</h3>
+<p>Like most other C-family languages, JavaScript terminates statements with a semicolon (<code>;</code>). Sometimes, you’re able to omit these semicolons in your source code and let the interpreter guess about where to put them. The catch is that the interpreter sometimes won’t have enough context to guess correctly, leaving you with some really confusing errors. In this club, we’ve decided that it’s in our best interest to explicitly include semicolons 100% of the time. Please do your best to follow this standard!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// semicolon included</span></span>
+<span class="line"><span style="color:#6A737D">// ------------v</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;this is valid&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// semicolon omitted</span></span>
+<span class="line"><span style="color:#6A737D">// -----------------------------------v</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;this is also valid (but discouraged)&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="primitives-and-common-operations">Primitives and common operations</h3>
+<p>JavaScript’s most basic units of information are categorized into a few primitives<sup><a href="#user-content-fn-other-primitives" id="user-content-fnref-other-primitives" data-footnote-ref aria-describedby="footnote-label">1</a></sup>: <code>boolean</code>, <code>number</code>, <code>string</code>, <code>undefined</code>, and <code>null</code>.</p>
+<p>Booleans are values of <code>true</code> or <code>false</code>. They’re used extensively in conditional statements, which we’ll cover later.</p>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// true!!!</span></span>
+<span class="line"><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#6A737D">// false...</span></span>
+<span class="line"><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#6A737D">// logical or, yields true</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ||</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#6A737D">// logical and, yields false</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> &amp;&amp;</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#6A737D">// logical not, yields false</span></span>
+<span class="line"><span style="color:#F97583">!</span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#6A737D">// use parenthesis to enforce an order of operations</span></span>
+<span class="line"><span style="color:#6A737D">// this yields true</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ||</span><span style="color:#79B8FF"> false</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#F97583"> &amp;&amp;</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>Numbers are stored as double-precision floating point numbers (think <code>double</code> in your C-style language of choice). They look like:</p>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// plain integers yield their value</span></span>
+<span class="line"><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#6A737D">// you can add a point without anything after it</span></span>
+<span class="line"><span style="color:#79B8FF">2</span></span>
+<span class="line"><span style="color:#6A737D">// or with something</span></span>
+<span class="line"><span style="color:#79B8FF">3.0</span></span>
+<span class="line"><span style="color:#6A737D">// scientific notation works - this translates to 400 * 10^(-2)</span></span>
+<span class="line"><span style="color:#79B8FF">400e-2</span></span>
+<span class="line"><span style="color:#6A737D">// numbers prefixed with 0x are interpreted as base-16 (hexadecimal)</span></span>
+<span class="line"><span style="color:#79B8FF">0x5</span></span>
+<span class="line"><span style="color:#6A737D">// a 0b prefix denotes a base-2 literal (binary)</span></span>
+<span class="line"><span style="color:#79B8FF">0b110</span></span>
+<span class="line"><span style="color:#6A737D">// you can separate digits with an underscore (_) for readability</span></span>
+<span class="line"><span style="color:#6A737D">// this yields 1000000 (one million)</span></span>
+<span class="line"><span style="color:#79B8FF">1_000_000</span></span>
+<span class="line"><span style="color:#6A737D">// addition, yields 3</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">// subtraction, yields -1</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> -</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">// multiplication, yields 2</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> *</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">// division, yields 0.5</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> /</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">// modulo, yields 1</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> %</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#6A737D">// exponentiation (think a^b), yields 1</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#F97583"> **</span><span style="color:#79B8FF"> 2</span></span></code></pre>
+<p>Please keep in the back of your mind that these are floats, and come with all the usual float weirdness (imprecision, non-associativity, signed zeroes, infinities, NaNs). You should almost never have to worry about these things, but it’s good to know that they exist just in case you ever do.</p>
+<p>Strings look like this:</p>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// double quotes</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;this is a string&quot;</span></span>
+<span class="line"><span style="color:#6A737D">// single quotes</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;this is also a string&quot;</span></span>
+<span class="line"><span style="color:#6A737D">// backticks (that thing to the left of your 1 key)</span></span>
+<span class="line"><span style="color:#9ECBFF">`this is also also a string`</span></span>
+<span class="line"><span style="color:#6A737D">// you can use a backslash (\) to break long strings into multiple lines</span></span>
+<span class="line"><span style="color:#6A737D">// this yields &quot;this string spans multiple lines!&quot; (no new line)</span></span>
+<span class="line"><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;this string spans </span><span style="color:#79B8FF">\</span></span>
+<span class="line"><span style="color:#9ECBFF">multiple lines!&quot;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">// you can use the usual escape sequences</span></span>
+<span class="line"><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;newline: </span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">, tab: </span><span style="color:#79B8FF">\t</span><span style="color:#9ECBFF">, carriage return: </span><span style="color:#79B8FF">\r</span><span style="color:#9ECBFF">, null: </span><span style="color:#79B8FF">\0</span><span style="color:#9ECBFF">, etc&quot;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">// strings are arrays of individual characters. you can access these characters</span></span>
+<span class="line"><span style="color:#6A737D">// with a subscript ([]). we&#39;ll talk more about arrays later!</span></span>
+<span class="line"><span style="color:#6A737D">// this yields the string &#39;3&#39;</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;012345&quot;</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D">// + appends strings together. this yields &quot;strings are nice&quot;.</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;strings &quot;</span><span style="color:#F97583"> +</span><span style="color:#9ECBFF"> &quot;are nice&quot;</span></span>
+<span class="line"><span style="color:#6A737D">// other types are eagerly converted into strings when appended</span></span>
+<span class="line"><span style="color:#6A737D">// this yields &quot;this should say false: false&quot;</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;this should say false: &quot;</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#F97583"> &amp;&amp;</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#6A737D">// backtick strings allow you to inject any js expression into a string with</span></span>
+<span class="line"><span style="color:#6A737D">// `${expr}`</span></span>
+<span class="line"><span style="color:#9ECBFF">`this should say false: ${</span><span style="color:#79B8FF">false</span><span style="color:#F97583"> ||</span><span style="color:#9ECBFF"> (</span><span style="color:#79B8FF">false</span><span style="color:#F97583"> &amp;&amp;</span><span style="color:#79B8FF"> true</span><span style="color:#9ECBFF">)</span><span style="color:#9ECBFF">}`</span></span></code></pre>
+<p>Undefined and null values are kind of special. Undefined is used to indicate that an identifier hasn’t been given an explicit value. You’ll see undefined values if you try to do something like use a variable that hasn’t been assigned to. Null values, on the other hand, are used to indicate an intentional value of ‘nothing’. Most of the time, you shouldn’t go out of your way to use undefined. Null is maybe a little bit more common.</p>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#79B8FF">undefined</span></span>
+<span class="line"><span style="color:#79B8FF">null</span></span>
+<span class="line"><span style="color:#6A737D">// operations with null and undefined are weird. you really shouldn&#39;t ever have</span></span>
+<span class="line"><span style="color:#6A737D">// to think about them, but here are some quick examples just for fun:</span></span>
+<span class="line"><span style="color:#6A737D">// this yields NaN (the floating point value)</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> undefined</span></span>
+<span class="line"><span style="color:#6A737D">// this yields the number 1</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> null</span></span>
+<span class="line"><span style="color:#6A737D">// the typeof operator should yield a string containing a value&#39;s type (e.g.</span></span>
+<span class="line"><span style="color:#6A737D">// &quot;string&quot;, &quot;boolean&quot;, etc), but this yields &quot;object&quot; instead of &quot;null&quot; (more</span></span>
+<span class="line"><span style="color:#6A737D">// on objects later)</span></span>
+<span class="line"><span style="color:#F97583">typeof</span><span style="color:#79B8FF"> null</span></span></code></pre>
+<h3 id="variables">Variables</h3>
+<p>You may from time to time want to store values for later use. You can do this using variables. Variables are declared using <code>const</code> and <code>let</code>.<sup><a href="#user-content-fn-other-decls" id="user-content-fnref-other-decls" data-footnote-ref aria-describedby="footnote-label">2</a></sup></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// declares a new variable `variable0` with initial value `undefined`</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> variable0;</span></span>
+<span class="line"><span style="color:#6A737D">// variables can be reassigned</span></span>
+<span class="line"><span style="color:#E1E4E8">variable0 </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;hi&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// js is dynamically typed, so variables can also be reassigned to values with</span></span>
+<span class="line"><span style="color:#6A737D">// different types</span></span>
+<span class="line"><span style="color:#E1E4E8">variable0 </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// const variables must be initialized at declaration and cannot be reassigned</span></span>
+<span class="line"><span style="color:#6A737D">// after declaration</span></span>
+<span class="line"><span style="color:#6A737D">// const variable1; &lt;- not allowed!</span></span>
+<span class="line"><span style="color:#F97583">const</span><span style="color:#79B8FF"> variable1</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// variable1 = 2; &lt;- not allowed!</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// variables are scoped to the block they&#39;re in. this means that they&#39;re only</span></span>
+<span class="line"><span style="color:#6A737D">// accessible inside the curly braces ({}) they were declared.</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> outerScope </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;outer!&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// outerScope now accessible</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#6A737D">  // outerScope still accessible</span></span>
+<span class="line"><span style="color:#F97583">  let</span><span style="color:#E1E4E8"> innerScope </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;inner!&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">  // innerScope now accessible</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// innerScope no longer accessible</span></span>
+<span class="line"><span style="color:#6A737D">// outerScope still accessible</span></span></code></pre>
+<p>Sometimes you’ll want to do an operation on a variable’s value and then store the result back into the variable. JavaScript has a shorthand for this:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> foo </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 100</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// instead of writing something like this</span></span>
+<span class="line"><span style="color:#E1E4E8">foo </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> foo </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// you can instead write this</span></span>
+<span class="line"><span style="color:#E1E4E8">foo </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>You use this operation-then-assign syntax with any of the operations mentioned in the previous section.</p>
+<p>There is another, even more terse way to do an operation-then-assign for the special cases of incrementing and decrementing by one. If you’re familiar with increment and decrement from other C languages, they work pretty much the same in JS. You can use them postfix or prefix, and they act as expressions (i.e. they yield a value). These operators can be hard to read and reason with if used in overly creative ways though, so please be kind to your collaborators and give some thought to maintainability before using them.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> baz </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">baz</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">baz </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">baz </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">baz</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">baz </span><span style="color:#F97583">===</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="comparisons">Comparisons</h3>
+<p>Comparisons let you check whether data structures satisfy some sort of condition.</p>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// double-equals (==) compares values. this yields true:</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#6A737D">// but beware! the interpreter will try and convert types to allow for</span></span>
+<span class="line"><span style="color:#6A737D">// comparison. this can lead to unexpected behavior like this (comparing string</span></span>
+<span class="line"><span style="color:#6A737D">// and number), which yields true</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;0&quot;</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// if you want to do an equals comparison while respecting type differences,</span></span>
+<span class="line"><span style="color:#6A737D">// you&#39;d use a triple-equals (===) comparison.</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> ===</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // true</span></span>
+<span class="line"><span style="color:#9ECBFF">&quot;0&quot;</span><span style="color:#F97583"> ===</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // false</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// a similar distinction exists for the not-equals comparisons. the following</span></span>
+<span class="line"><span style="color:#6A737D">// are equivalent, and yield false</span></span>
+<span class="line"><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#F97583"> ==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> !=</span><span style="color:#9ECBFF"> &quot;0&quot;</span></span>
+<span class="line"><span style="color:#6A737D">// the following are equivalent, and yield true</span></span>
+<span class="line"><span style="color:#F97583">!</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#F97583"> ===</span><span style="color:#9ECBFF"> &quot;0&quot;</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> !==</span><span style="color:#9ECBFF"> &quot;0&quot;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// finally, we have the ordering comparisons. these work as you would expect in</span></span>
+<span class="line"><span style="color:#6A737D">// any other language, with the caveat that types are always converted (like</span></span>
+<span class="line"><span style="color:#6A737D">// with ==)</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> &gt;</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // false</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> &gt;=</span><span style="color:#9ECBFF"> &quot;0&quot;</span><span style="color:#6A737D"> // true</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> &lt;</span><span style="color:#9ECBFF"> &quot;0&quot;</span><span style="color:#6A737D"> // false</span></span>
+<span class="line"><span style="color:#79B8FF">0</span><span style="color:#F97583"> &lt;=</span><span style="color:#79B8FF"> 0</span><span style="color:#6A737D"> // true</span></span></code></pre>
+<p>JavaScript also has something called ‘truthy’ and ‘falsy’ values. Basically, all non-Boolean values will behave like <code>true</code> or <code>false</code> if you try to use them as if they were Boolean. The rule is pretty simple - all values behave like <code>true</code> except for the following, which behave like <code>false</code>:</p>
+<ul>
+<li><code>0</code></li>
+<li><code>NaN</code> (a floating point not-a-number value)</li>
+<li><code>&quot;&quot;</code> (the empty string)</li>
+<li><code>null</code></li>
+<li><code>undefined</code></li>
+</ul>
+
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// we&#39;ll use bang-bang (!!) to force a truthy/falsy value to turn into a</span></span>
+<span class="line"><span style="color:#6A737D">// boolean. it really just does a logical not (the first !) and then nots that</span></span>
+<span class="line"><span style="color:#6A737D">// again (the second !) to get the original boolean value.</span></span>
+<span class="line"><span style="color:#6A737D">// the following all yield `true`</span></span>
+<span class="line"><span style="color:#79B8FF">false</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#79B8FF">0</span></span>
+<span class="line"><span style="color:#79B8FF">false</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#9ECBFF">&quot;&quot;</span></span>
+<span class="line"><span style="color:#79B8FF">false</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#79B8FF">null</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#9ECBFF">&quot;true&quot;</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ===</span><span style="color:#F97583"> !!</span><span style="color:#9ECBFF">&quot;false&quot;</span></span></code></pre>
+<h3 id="conditionals">Conditionals</h3>
+<p>Conditionals let you make decisions about whether or not a bit of code should run. They come in the form of a Boolean condition to test and a block to execute (or not, depending on the condition).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // the condition is true, this will run</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // the condition is false, this won&#39;t run</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// else statements are run when the previous if condition was false</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // won&#39;t run</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // will run</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can omit the curly braces ({}) if you only use one statement</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">) </span><span style="color:#9ECBFF">&quot;won&#39;t run&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">else</span><span style="color:#9ECBFF"> &quot;will run&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// omitting braces is usually bad style, but it&#39;s useful when chaining</span></span>
+<span class="line"><span style="color:#6A737D">// conditionals together. remember, conditionals are themselves a statement,</span></span>
+<span class="line"><span style="color:#6A737D">// so you can do something like this (called an else-if)</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // won&#39;t run</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // will run</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// that was a brace-less else statement with an if as its single</span></span>
+<span class="line"><span style="color:#6A737D">// statement. cool, huh? you can then chain off of that single</span></span>
+<span class="line"><span style="color:#6A737D">// if statement with another else, and so on</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // won&#39;t run</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#F97583"> if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // will run</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // won&#39;t run (last condition was true)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Recall our previous overviews of logical operators and truthy values. They both apply here, the condition just has to be a Boolean!</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#79B8FF">true</span><span style="color:#F97583"> &amp;&amp;</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // won&#39;t run (true and true is false)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (</span><span style="color:#9ECBFF">&quot;foo&quot;</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // will run (nonempty strings are truthy)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>JavaScript gives you a shorthand for simple conditionals called the ternary expression. They’re broken up into three parts: a condition, a value to yield if the condition is true, and a value to yield if the condition is false.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// ternaries look like this:</span></span>
+<span class="line"><span style="color:#6A737D">// condition ? leftHand : rightHand</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> ifTrue </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;left hand side!&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> ifFalse </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;right hand side!&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// the condition is true, so the ternary yields the value on the left side of</span></span>
+<span class="line"><span style="color:#6A737D">// the colon - ifTrue, which is &quot;left hand side!&quot;</span></span>
+<span class="line"><span style="color:#79B8FF">true</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> ifTrue </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ifFalse;</span></span>
+<span class="line"><span style="color:#6A737D">// now the condition is false, so the ternary yields the value on the right side</span></span>
+<span class="line"><span style="color:#6A737D">// of the colon - ifFalse, which is &quot;right hand side!&quot;</span></span>
+<span class="line"><span style="color:#79B8FF">false</span><span style="color:#F97583"> ?</span><span style="color:#E1E4E8"> ifTrue </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> ifFalse;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// we can use this to compress basic conditionals down to a single line</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> condition </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;some condition&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> message;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (condition) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;nice, condition is true&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;drats, condition is false&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;nice, condition is true&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you could bring that down to something like this using a ternary</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> condition </span><span style="color:#F97583">?</span><span style="color:#9ECBFF"> &quot;nice, condition is true&quot;</span><span style="color:#F97583"> :</span><span style="color:#9ECBFF"> &quot;drats, condition is false&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;nice, condition is true&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="arrays">Arrays</h3>
+<p>Arrays let you bundle multiple values into one data structure.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// array literals are delimited by square brackets ([])</span></span>
+<span class="line"><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#6A737D">// elements don&#39;t have to be the same type</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> arr </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">&quot;value zero&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;value one&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// elements are accessed using the subscript ([]) operator</span></span>
+<span class="line"><span style="color:#6A737D">// arrays are zero-indexed, meaning they start counting their elements at zero</span></span>
+<span class="line"><span style="color:#6A737D">// yields &quot;value zero&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">arr[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]:</span></span>
+<span class="line"><span style="color:#6A737D">// yields &quot;value one&quot;</span></span>
+<span class="line"><span style="color:#E1E4E8">arr[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// yields 2</span></span>
+<span class="line"><span style="color:#E1E4E8">arr[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// you can change the contents at an index by reassigning with =</span></span>
+<span class="line"><span style="color:#6A737D">// after this next line, arr will look like [&quot;value zero&quot;, &quot;value one&quot;, 2, 3]</span></span>
+<span class="line"><span style="color:#E1E4E8">arr[</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// you can even store other arrays inside of an array!</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> nested </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [[</span><span style="color:#9ECBFF">&quot;array 0 element 0&quot;</span><span style="color:#E1E4E8">], [</span><span style="color:#9ECBFF">&quot;array 1 element 0&quot;</span><span style="color:#E1E4E8">], [</span><span style="color:#9ECBFF">&quot;array 2 element 0&quot;</span><span style="color:#E1E4E8">]];</span></span>
+<span class="line"><span style="color:#6A737D">// you access these values using chained subscripts. the first subscript yields</span></span>
+<span class="line"><span style="color:#6A737D">// the element stored at that index (which is another array) and the second one</span></span>
+<span class="line"><span style="color:#6A737D">// subscripts into that yielded array. this yields &quot;array 1 element 0&quot;.</span></span>
+<span class="line"><span style="color:#E1E4E8">nested[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">][</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// you can get an array&#39;s length using the `.length` property (more on</span></span>
+<span class="line"><span style="color:#6A737D">// properties in the classes section). this yields 4.</span></span>
+<span class="line"><span style="color:#E1E4E8">arr.</span><span style="color:#79B8FF">length</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// you can append a new element to the end of an array with the Array.push</span></span>
+<span class="line"><span style="color:#6A737D">// method (more on methods later)</span></span>
+<span class="line"><span style="color:#E1E4E8">arr.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<h3 id="loops">Loops</h3>
+<p>Loops let you repeat a block of code while a condition is true. They come in three primary varieties: <code>while</code>, <code>for</code>, and <code>for-of</code>.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// while loops continue so long as the condition in their parenthesis (())</span></span>
+<span class="line"><span style="color:#6A737D">// yields true</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> howMany </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;We looped &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">while</span><span style="color:#E1E4E8"> (howMany </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 5</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> howMany </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  howMany </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">+=</span><span style="color:#9ECBFF"> &quot;times&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;We looped 0 1 2 3 4 times&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>For loops let you declare a variable scoped to the loop, usually for iteration.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// for loops generally look like `for (initialization; condition; step)`.</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;We looped &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">let</span><span style="color:#E1E4E8"> howMuch </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; howMuch </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 5</span><span style="color:#E1E4E8">; howMuch </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> howMuch </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">+=</span><span style="color:#9ECBFF"> &quot;times&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;We looped 0 1 2 3 4 times&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// for loops can be thought of as just a while loop in a trench coat. the</span></span>
+<span class="line"><span style="color:#6A737D">// previous example could have instead been written equivalently as:</span></span>
+<span class="line"><span style="color:#E1E4E8">{</span></span>
+<span class="line"><span style="color:#F97583">  let</span><span style="color:#E1E4E8"> howMuch </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  while</span><span style="color:#E1E4E8"> (howMuch </span><span style="color:#F97583">&lt;</span><span style="color:#79B8FF"> 5</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    message </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> howMuch </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    howMuch </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">+=</span><span style="color:#9ECBFF"> &quot;times&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>For-of loops are analogous to for-each loops in other languages. They provide a nicer way of looping through collections of things.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;We&#39;ve seen elements &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> array </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">5</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// trying to change the variable you bind each element to will just change</span></span>
+<span class="line"><span style="color:#6A737D">// the variable, not the array, so we usually const-declare them for clarity</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> element</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> array) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message </span><span style="color:#F97583">+=</span><span style="color:#E1E4E8"> element </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;We&#39;ve seen elements 0 1 2 3 4 5 &quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="functions">Functions</h3>
+<p>Functions let you bundle chunks of code into self-contained, parameterized units. They’re essential to avoiding repetition and improving readability of code. Parameters are passed by value but referencing through that value may still make changes that are visible outside of a function. This is the same way Java works.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// functions are declared using the function keyword.</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> sayNi</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">  // ni!</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// you call a function by using its name followed by parenthesis (())</span></span>
+<span class="line"><span style="color:#B392F0">sayNi</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<p>Functions can also take paramters, values which are passed when the function is called and can be used inside the function’s body. These parameters are ‘pass by value’ with similar rules to Java.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// parameters are declared alongside a function inside its parenthesis. these</span></span>
+<span class="line"><span style="color:#6A737D">// parameters are untyped, like any other variable.</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> useNum</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">num</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // you can use num like a variable in here</span></span>
+<span class="line"><span style="color:#E1E4E8">  num </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  num </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  num </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 15</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// pass parameters when you call the function. here, num gets the value 1</span></span>
+<span class="line"><span style="color:#6A737D">// inside of useNum&#39;s body</span></span>
+<span class="line"><span style="color:#B392F0">useNum</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// if you omit a parameter when calling a function, its value is `undefined`</span></span>
+<span class="line"><span style="color:#6A737D">// inside the function. e.g., when we do this, num gets the value `undefined`</span></span>
+<span class="line"><span style="color:#6A737D">// in useNum&#39;s body</span></span>
+<span class="line"><span style="color:#B392F0">useNum</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">// we can get around this with default parameters, which give a parameter a</span></span>
+<span class="line"><span style="color:#6A737D">// default value if it isn&#39;t passed (or is passed as `undefined`)</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> useNumDefault</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">num</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // ...</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// default parameters act like any other parameter when passed</span></span>
+<span class="line"><span style="color:#6A737D">// here, num = 1 in the function body</span></span>
+<span class="line"><span style="color:#B392F0">useNumDefault</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// but when we don&#39;t pass a value, num gets the default value (in this case, 0)</span></span>
+<span class="line"><span style="color:#B392F0">useNumDefault</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">useNumDefault</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">undefined</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// you can also use three dots (...) to accept a variable number of parameters</span></span>
+<span class="line"><span style="color:#6A737D">// (often called varargs). this must come at the end of the parameters list.</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> useVariable</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">firstArg</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">...</span><span style="color:#FFAB70">restArgs</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // restArgs is a collection - you can pretty much treat it like an array</span></span>
+<span class="line"><span style="color:#E1E4E8">  restArgs[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">  restArgs[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">  restArgs[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">  // etc</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// here, firstArg is 0, restArgs[0] is 1, restArgs[1] is 2, etc</span></span>
+<span class="line"><span style="color:#B392F0">useVariable</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>Return statements let functions yield a value to the place where they were called.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> returnOne</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  let</span><span style="color:#E1E4E8"> varToReturn </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  varToReturn </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">  // return statement: this function yields</span></span>
+<span class="line"><span style="color:#6A737D">  // this computed value</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> varToReturn </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// the value returned by a function is &quot;slotted in&quot; to the place where the</span></span>
+<span class="line"><span style="color:#6A737D">// function was called</span></span>
+<span class="line"><span style="color:#6A737D">// e.g. this is true, it looks like 1 === 1 to the interpreter since the</span></span>
+<span class="line"><span style="color:#6A737D">// returnOne function returned 1</span></span>
+<span class="line"><span style="color:#B392F0">returnOne</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>There are also some other ways to declare functions, mainly unnamed functions and lambdas.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// if the interpreter has enough information to name a function itself, you can</span></span>
+<span class="line"><span style="color:#6A737D">// omit the name from the initial declaration and later refer to it by the</span></span>
+<span class="line"><span style="color:#6A737D">// context-assigned name</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#B392F0"> namedFunction</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#6A737D">  // I&#39;m named namedFunction</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#B392F0">namedFunction</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> functionArray </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#F97583">  function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#6A737D">    /* I&#39;m named functionArray[0] */</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#F97583">  function</span><span style="color:#E1E4E8"> () {</span></span>
+<span class="line"><span style="color:#6A737D">    /* I&#39;m named functionArray[1] */</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">functionArray[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]();</span></span>
+<span class="line"><span style="color:#E1E4E8">functionArray[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]();</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can use arrow syntax functions (or &#39;lambdas&#39;) as more concise notation</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#B392F0"> otherNamedFunction</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> () </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  /* I&#39;m named otherNamedFunction */</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#B392F0">otherNamedFunction</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">// lambdas can do anything functions can, including taking parameters and</span></span>
+<span class="line"><span style="color:#6A737D">// returning values</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#B392F0"> lambdaSuccessor</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">number</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#E1E4E8"> number </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#B392F0">lambdaSuccessor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// if a lambda is able to return in one expression, you can omit the braces and</span></span>
+<span class="line"><span style="color:#6A737D">// return statement as a shorthand. you can also leave out the parenthesis if</span></span>
+<span class="line"><span style="color:#6A737D">// the lambda only has one parameter. this function is equivalent to the last:</span></span>
+<span class="line"><span style="color:#B392F0">lambdaSuccessor</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">number</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> number </span><span style="color:#F97583">+</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#B392F0">lambdaSuccessor</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 2</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="objects">Objects</h3>
+<p>Objects let you bundle a bunch of named values into one unit.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// object literals are delimited by curly braces ({})</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> emptyObject </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {};</span></span>
+<span class="line"><span style="color:#6A737D">// you define properties on an object by providing a name and a value</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> greetingObject </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // properties define values on an object</span></span>
+<span class="line"><span style="color:#E1E4E8">  greeting: </span><span style="color:#9ECBFF">&quot;Hello&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">  // you can use any static string literal as a property name</span></span>
+<span class="line"><span style="color:#9ECBFF">  &quot;name with spaces&quot;</span><span style="color:#E1E4E8">: </span><span style="color:#9ECBFF">&quot;Wow that name had spaces in it&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#6A737D">  // nested objects are valid</span></span>
+<span class="line"><span style="color:#E1E4E8">  nestedObject: {</span></span>
+<span class="line"><span style="color:#E1E4E8">    nestedGreeting: </span><span style="color:#9ECBFF">&quot;Hello from the inside&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#6A737D">  // they can store functions to emulate methods</span></span>
+<span class="line"><span style="color:#B392F0">  greet</span><span style="color:#E1E4E8">: </span><span style="color:#F97583">function</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // access the current object&#39;s properties with the `this` keyword</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> `${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">greeting</span><span style="color:#9ECBFF">} ${</span><span style="color:#E1E4E8">user</span><span style="color:#9ECBFF">}.`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#6A737D">  // here&#39;s another way to define a method</span></span>
+<span class="line"><span style="color:#B392F0">  greetExcited</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> `${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">greeting</span><span style="color:#9ECBFF">} ${</span><span style="color:#E1E4E8">user</span><span style="color:#9ECBFF">}!`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#6A737D">  // getters and setters have special syntax that make them a bit nicer to use</span></span>
+<span class="line"><span style="color:#E1E4E8">  getSetProperty: </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#F97583">  get</span><span style="color:#B392F0"> getProperty</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.getSetProperty;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#F97583">  set</span><span style="color:#B392F0"> setProperty</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">value</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.getSetProperty </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> value;</span></span>
+<span class="line"><span style="color:#E1E4E8">  },</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#6A737D">// properties are then accessed by writing the object&#39;s name, a dot (.), then</span></span>
+<span class="line"><span style="color:#6A737D">// the property&#39;s name. this is called dot notation.</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.greeting </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Hello&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// access more complex string names with square brackets ([])</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject[</span><span style="color:#9ECBFF">&quot;name with spaces&quot;</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Wow that name had spaces in it&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.nestedObject.nestedGreeting </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Hello from the inside&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.</span><span style="color:#B392F0">greet</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alice&quot;</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Hello Alice.&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// get and set methods can be accessed as if they were properties</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.getProperty </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.setProperty </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.getProperty </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// you can modify an object outside of its declaration to change, remove, or add</span></span>
+<span class="line"><span style="color:#6A737D">// properties</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.greeting </span><span style="color:#F97583">=</span><span style="color:#9ECBFF"> &quot;Goodbye&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.greetExcited </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> undefined</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.</span><span style="color:#B392F0">greetConfused</span><span style="color:#F97583"> =</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">greetingObject</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">greeting</span><span style="color:#9ECBFF">} ${</span><span style="color:#E1E4E8">user</span><span style="color:#9ECBFF">}?`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">greetingObject.</span><span style="color:#B392F0">greetConfused</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Bob&quot;</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Goodbye Bob?&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h3 id="classes">Classes</h3>
+<p>Classes let us prescribe properties and methods to an object. Think of it like a blueprint: any object that follows the blueprint provided by the class is considered an instance of that class.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // properties are declared with just a name</span></span>
+<span class="line"><span style="color:#FFAB70">  name</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">  // you can give properties a default value</span></span>
+<span class="line"><span style="color:#FFAB70">  laysEggs</span><span style="color:#F97583"> =</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">  // static properties are shared across all instances of the class and are</span></span>
+<span class="line"><span style="color:#6A737D">  // referred to using the class name</span></span>
+<span class="line"><span style="color:#F97583">  static</span><span style="color:#FFAB70"> defaultName</span><span style="color:#F97583"> =</span><span style="color:#9ECBFF"> &quot;Animal&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">  // private properties start with a hash (#) and cannot be accessed outside</span></span>
+<span class="line"><span style="color:#6A737D">  // of the class</span></span>
+<span class="line"><span style="color:#FFAB70">  #message</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // methods are also defined with just a name</span></span>
+<span class="line"><span style="color:#B392F0">  sayMessage</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#9ECBFF"> `${</span><span style="color:#E1E4E8">name</span><span style="color:#F97583"> !==</span><span style="color:#79B8FF"> undefined</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">name</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> Animal</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">defaultName</span><span style="color:#9ECBFF">} says: ${</span><span style="color:#79B8FF">this</span><span style="color:#9ECBFF">.</span><span style="color:#E1E4E8">#message</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // private methods also start with a hash (#). they can also be static.</span></span>
+<span class="line"><span style="color:#E1E4E8">  #</span><span style="color:#B392F0">getNameOrDefault</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> name </span><span style="color:#F97583">!==</span><span style="color:#79B8FF"> undefined</span><span style="color:#F97583"> ?</span><span style="color:#79B8FF"> this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> Animal.defaultName;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">  // constructors give you a way of creating an object from the class</span></span>
+<span class="line"><span style="color:#6A737D">  // blueprint. the constructor method (there can only be one) must be named</span></span>
+<span class="line"><span style="color:#6A737D">  // `constructor`, and can take arguments like any other function.</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">animalMessage</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">canSwim</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name;</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.#message </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> animalMessage;</span></span>
+<span class="line"><span style="color:#6A737D">    // you can also define properties inside the constructor using `this`</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.canSwim </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> canSwim;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>Using classes is pretty similar to other object-oriented languages.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// you use the constructor to make a new object using the new keyword and the</span></span>
+<span class="line"><span style="color:#6A737D">// class name</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> whale </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Whale&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Wooooo...&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// these objects are just like any other objects, except they have the</span></span>
+<span class="line"><span style="color:#6A737D">// properties we defined earlier</span></span>
+<span class="line"><span style="color:#E1E4E8">whale.name </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Whale&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">whale.canSwim </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// whale.#message === &quot;Wooooo...&quot;; &lt;- not allowed, #message is private</span></span>
+<span class="line"><span style="color:#E1E4E8">whale.</span><span style="color:#B392F0">sayMessage</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Whale says: Wooooo...&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>Classes can also extend other classes to represent a more specific type of blueprint.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Platypus</span><span style="color:#F97583"> extends</span><span style="color:#B392F0"> Animal</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // subclasses can add their own methods and properties</span></span>
+<span class="line"><span style="color:#B392F0">  layEggs</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    // TODO lay eggs</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">    // you must call the parent class&#39;s constructor with the super keyword</span></span>
+<span class="line"><span style="color:#79B8FF">    super</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Platypus&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Chatter&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">    // you can then access a parent class&#39;s properties and methods</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.laysEggs </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">    // not private ones though, those are still inaccessible</span></span>
+<span class="line"><span style="color:#6A737D">    // this.#message = &quot;Growl&quot;; &lt;- not allowed</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> perry </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> Platypus</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">// you can use parent class properties and methods on the subclass object</span></span>
+<span class="line"><span style="color:#E1E4E8">perry.canSwim </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">perry.laysEggs </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">perry.</span><span style="color:#B392F0">sayMessage</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Platypus says: Chatter&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#6A737D">// and also use the new ones defined by the subclass</span></span>
+<span class="line"><span style="color:#E1E4E8">perry.</span><span style="color:#B392F0">layEggs</span><span style="color:#E1E4E8">();</span></span></code></pre>
+<h2 id="interacting-with-the-dom">Interacting with the DOM</h2>
+<p>An important part of using JavaScript is changing and responding to changes in the DOM. The DOM, short for <strong>D</strong>ocument <strong>O</strong>bject <strong>M</strong>odel, is the browser’s internal data structure for the contents of a page. Web browsers expose a number of JavaScript objects and functions to let you interact with this model. Understanding this section requires a basic understanding of HTML and CSS. Check out <a href="https://github.com/DevDogs-UGA/DevDogs-Academy/tree/main/frontend/html">our article on HTML</a> or <a href="https://github.com/DevDogs-UGA/DevDogs-Academy/tree/main/frontend/css">on CSS</a> if you need a quick intro (or refresher!).</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// the `document` object has methods which let you interact with the DOM.</span></span>
+<span class="line"><span style="color:#6A737D">// often, the first thing you&#39;ll want to do is select an element. here are a</span></span>
+<span class="line"><span style="color:#6A737D">// few different ways to do this:</span></span>
+<span class="line"><span style="color:#6A737D">// get a single element by its ID</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> uniqueElement </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">getElementById</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;unique&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// get a collection of elements that have a given tag name</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> paragraphElements </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">getElementsByTagName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;p&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// get a collection of elements that have a given class</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> usernameElements </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">getElementsByClassName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;username&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// get a collection of elements that match a CSS selector</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> nestedParagraphElements </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">querySelectorAll</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;p p&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can essentially treat the &#39;collections&#39; mentioned above like arrays</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> firstParagraphElement </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> paragraphElements[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// the value returned by these selectors can be queried again to get more</span></span>
+<span class="line"><span style="color:#6A737D">// specific elements, if desired</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> paragraphInUniqueElement </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> uniqueElement.</span><span style="color:#B392F0">querySelectorAll</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;p&quot;</span><span style="color:#E1E4E8">)[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span></code></pre>
+<p>Once you have a value that holds a selected element, you can bind to their events. Events are flags that get raised when something happens to an element. They happen when elements are clicked, moused over, dragged, loaded, etc. Binding to an event just means running some code when the event gets triggered.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> button </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">getElementById</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;button-id&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// say we want to show a pop-up alert when someone clicks on the button</span></span>
+<span class="line"><span style="color:#6A737D">// we can bind to the click event using the `addEventListener` method</span></span>
+<span class="line"><span style="color:#E1E4E8">button.</span><span style="color:#B392F0">addEventListener</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;click&quot;</span><span style="color:#E1E4E8">, () </span><span style="color:#F97583">=&gt;</span><span style="color:#B392F0"> alert</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;You clicked the button!&quot;</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#6A737D">// now whenever someone clicks the button, the click event is raised and</span></span>
+<span class="line"><span style="color:#6A737D">// our alert lambda is called.</span></span></code></pre>
+<h2 id="promises-and-async">Promises and async</h2>
+<p>With JavaScript being the language of the web, you’re bound to use it to request data over the internet pretty often. Let’s look at a naive way of making such requests.<sup><a href="#user-content-fn-cors" id="user-content-fnref-cors" data-footnote-ref aria-describedby="footnote-label">3</a></sup></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// XMLHttpRequest objects are one way to make HTTP requests</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> x </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLHttpRequest</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">// we want to make a GET request to the url &#39;https://example.com&#39;. the false</span></span>
+<span class="line"><span style="color:#6A737D">// parameter tells the method to make the request synchronously - more on this</span></span>
+<span class="line"><span style="color:#6A737D">// later.</span></span>
+<span class="line"><span style="color:#E1E4E8">x.</span><span style="color:#B392F0">open</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;GET&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;https://example.com&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// send the request to the server</span></span>
+<span class="line"><span style="color:#E1E4E8">x.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">// success case: we got 200 OK from the server</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> (x.status </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 200</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // the responseText property contains the server&#39;s response</span></span>
+<span class="line"><span style="color:#F97583">  let</span><span style="color:#E1E4E8"> response </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> x.responseText;</span></span>
+<span class="line"><span style="color:#6A737D">  // print it to console with console.log</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(response);</span></span>
+<span class="line"><span style="color:#E1E4E8">} </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // failure case: request failed</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Request failed!&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>At first glance, this looks pretty nice. We get everything we need in only a few lines of code. Unfortunately there’s a catch: making an HTTP request like this will block the main thread. This means that as soon as the program hits the <code>x.send()</code> line, everything freezes until the server responds. Depending on the user’s internet speed and the status of the server, this could take anywhere from a few milliseconds to a few minutes. That’s bad! Imagine you have a button on a page that does something when you click on it.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// get the button element</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> button </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> document.</span><span style="color:#B392F0">getElementById</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;button&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// bind a lambda to the click event</span></span>
+<span class="line"><span style="color:#E1E4E8">button.</span><span style="color:#B392F0">addEventListener</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;click&quot;</span><span style="color:#E1E4E8">, (</span><span style="color:#FFAB70">_</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">  // let the user know they clicked the button</span></span>
+<span class="line"><span style="color:#B392F0">  alert</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;You clicked the button!&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span></code></pre>
+<p>Now imagine that elsewhere, you have to make a request to a server that takes a long time to respond. While this request is being made, nothing will happen when the user clicks on the button. This because the interpreter is being blocked by the long-running network request. The solution to this problem is something called a promise. Promises let you yield control back to the interpreter while you’re waiting for a resource to load.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> httpPromise </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">function</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">success</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">failure</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // the success parameter is a function we need to call if things succeed</span></span>
+<span class="line"><span style="color:#6A737D">    // the failure parameter is a function we need to call if things fail</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">    let</span><span style="color:#E1E4E8"> x </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#B392F0"> XMLHttpRequest</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    x.</span><span style="color:#B392F0">open</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;GET&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;https://example.com&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">    x.</span><span style="color:#B392F0">send</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (x.status </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 200</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#B392F0">        success</span><span style="color:#E1E4E8">(x.responseText):</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">        failure</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// we can access the promise&#39;s return values with a call to the method `then()`</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#B392F0"> usePromise</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">promiseText</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;We got this from the promise:</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">&quot;</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> promiseText);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#B392F0"> handleFailure</span><span style="color:#F97583"> =</span><span style="color:#F97583"> function</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Promise failed!&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#E1E4E8">httpPromise.</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(usePromise, handleFailure);</span></span>
+<span class="line"><span style="color:#6A737D">// if you know that the promise always succeeds, you can omit the failure function</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> successfulPromise </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">success</span><span style="color:#F97583"> =&gt;</span><span style="color:#B392F0"> success</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Success!&quot;</span><span style="color:#E1E4E8">));</span></span>
+<span class="line"><span style="color:#E1E4E8">successfulPromise.</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">(usePromise);</span></span></code></pre>
+<p>Most things that deal with running IO-bounded, potentially slow code will return a promise. However, promises can be a bit cumbersome to write manually every single time. Thankfully, there are shortcuts for making functions that return promises and waiting on promises, called <code>async</code> and <code>await</code> (respectively). Async functions automatically turn a function’s body into a promise. Awaiting a promise blocks execution until the promise resolves - i.e. succeeds or fails.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> slowHello</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">  // the built-in setTimeout function waits a certain number of milliseconds</span></span>
+<span class="line"><span style="color:#6A737D">  // before calling a function. here we just do nothing 5 seconds (5000</span></span>
+<span class="line"><span style="color:#6A737D">  // milliseconds) and then return our greeting</span></span>
+<span class="line"><span style="color:#B392F0">  setTimeout</span><span style="color:#E1E4E8">(() </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {}, </span><span style="color:#79B8FF">5000</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> `Hello ${</span><span style="color:#E1E4E8">name</span><span style="color:#9ECBFF">}!`</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// manually-made promise</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> helloBobPromise </span><span style="color:#F97583">=</span><span style="color:#F97583"> new</span><span style="color:#79B8FF"> Promise</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">success</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  let</span><span style="color:#E1E4E8"> bobGreeting </span><span style="color:#F97583">=</span><span style="color:#B392F0"> slowHello</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Bob&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#B392F0">  success</span><span style="color:#E1E4E8">(bobGreeting);</span></span>
+<span class="line"><span style="color:#E1E4E8">});</span></span>
+<span class="line"><span style="color:#6A737D">// you can use await on a promise to immediately block execution until the</span></span>
+<span class="line"><span style="color:#6A737D">// promise resolves. this is usually used when you reach a portion of your code</span></span>
+<span class="line"><span style="color:#6A737D">// where you absolutely need a value in order to continue</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> result </span><span style="color:#F97583">=</span><span style="color:#F97583"> await</span><span style="color:#E1E4E8"> helloBobPromise;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can alternatively define an equivalent async function.</span></span>
+<span class="line"><span style="color:#6A737D">// these functions get turned into a promise when they&#39;re called</span></span>
+<span class="line"><span style="color:#F97583">async</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> helloBobAsync</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#B392F0"> slowHello</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Bob&quot;</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can do promise things with the function&#39;s return value</span></span>
+<span class="line"><span style="color:#B392F0">helloBobAsync</span><span style="color:#E1E4E8">().</span><span style="color:#B392F0">then</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">greeting</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(greeting));</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">await</span><span style="color:#B392F0"> helloBobAsync</span><span style="color:#E1E4E8">());</span></span></code></pre>
+<p>You can use async functions anywhere, but <code>await</code> only works in either the global scope of your program or in an async function. This is to avoid completely removing the benefits of promises - you still want to yield control when possible while using <code>await</code>.</p>
+<h2 id="serialization-with-json">Serialization with JSON</h2>
+<p>Before you store values to disk or send them over the network, you need some standard way of representing them. If one computer stores the value <code>0</code> as a 32-bit binary value and another one expects it to be stored as a string, things can get messy real fast when one tries to communicate with the other. This is where JSON comes in. JSON, which stands for <strong>J</strong>ava<strong>S</strong>cript <strong>O</strong>bject <strong>N</strong>otation, borrows the lions share of JS’s type syntax and uses that to represent arbitrary data. JSON supports booleans, numbers, strings, arrays, objects, and <code>null</code> in roughly the same way that we talked about them earlier.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// let&#39;s make some example values to encode</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> objectToEncode </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message: </span><span style="color:#9ECBFF">&quot;This incident will be reported.&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> arrayToEncode </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// JSON.stringify turns a value into a JSON string</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> objectStringValue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(objectToEncode);</span></span>
+<span class="line"><span style="color:#6A737D">// curly braces ({}) denote objects, property names are put in double quotes (&quot;)</span></span>
+<span class="line"><span style="color:#E1E4E8">objectStringValue </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &#39;{&quot;message&quot;:&quot;This incident will be reported.&quot;}&#39;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> arrayStringValue </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">stringify</span><span style="color:#E1E4E8">(arrayToEncode);</span></span>
+<span class="line"><span style="color:#6A737D">// square brackets ([]) denote arrays, elements are separated by commas (,)</span></span>
+<span class="line"><span style="color:#E1E4E8">arrayStringValue </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;[false,true,false,true,false,true]&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// JSON.parse goes the other way, turning a JSON string into its JS value.</span></span>
+<span class="line"><span style="color:#6A737D">// whitespace is ignored, so you can make a JSON string as pretty as you want.</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> parsed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> JSON</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">parse</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`{</span></span>
+<span class="line"><span style="color:#9ECBFF">    &quot;sillyProperty&quot;: &quot;wow this property is so silly&quot;,</span></span>
+<span class="line"><span style="color:#9ECBFF">    &quot;absentProperty&quot;: null,</span></span>
+<span class="line"><span style="color:#9ECBFF">    &quot;arrayProperty&quot;: [0]</span></span>
+<span class="line"><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// you can now use the parsed value as if it was declared in your code</span></span>
+<span class="line"><span style="color:#E1E4E8">parsed.sillyProperty </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;wow this property is so silly&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">parsed.absentProperty </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">parsed.arrayProperty[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<h2 id="modules">Modules</h2>
+<p>As projects get larger, it becomes increasingly important to organize your code properly. JavaScript’s solution to this is the module - a file-based bundle of code that exposes some (or all) of its variables, functions, and classes for other files to use. Making things available from a file is called <code>export</code>ing, while using things from another file is called <code>import</code>ing. If you have experience with C or C++, a module’s exports are conceptually similar to a header file.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// let&#39;s cook up a module that makes a cake for you (in javascript).</span></span>
+<span class="line"><span style="color:#6A737D">// consider the following to be in a file called &#39;cake.js&#39;:</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> gatherIngredients</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> &quot;Gathered ingredients.&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> mixIngredients</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> &quot;Ingredients were mixed.&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> bakeMix</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> &quot;Mix has been baked.&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// let&#39;s export a counter variable that keeps track of how many cakes we&#39;ve</span></span>
+<span class="line"><span style="color:#6A737D">// made. exported variables are static to the module - that is, if two</span></span>
+<span class="line"><span style="color:#6A737D">// files A and B import this counter and A changes its value, B will see those</span></span>
+<span class="line"><span style="color:#6A737D">// changes.</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> let</span><span style="color:#E1E4E8"> cakesMade </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// now let&#39;s make a function that does all the steps to bake a cake</span></span>
+<span class="line"><span style="color:#F97583">export</span><span style="color:#F97583"> function</span><span style="color:#B392F0"> makeACake</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">  // exported functions can use functions that aren&#39;t exported</span></span>
+<span class="line"><span style="color:#B392F0">  gatherIngredients</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">  mixIngredients</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#B392F0">  bakeMix</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">  cakesMade </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">  return</span><span style="color:#9ECBFF"> &quot;Cake made successfully!&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// say that we have another file, &#39;bakery.js&#39;, that wants to use the exports</span></span>
+<span class="line"><span style="color:#6A737D">// from &#39;cake.js&#39;. our file tree now looks like this (with both files in the</span></span>
+<span class="line"><span style="color:#6A737D">// same directory):</span></span>
+<span class="line"><span style="color:#6A737D">// .</span></span>
+<span class="line"><span style="color:#6A737D">// +-- cake.js</span></span>
+<span class="line"><span style="color:#6A737D">// \-- bakery.js</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// to import from cake.js, we list what we want to import in curly braces ({})</span></span>
+<span class="line"><span style="color:#6A737D">// and say where they live. the module name (that &quot;./cake.js&quot; bit) is a path</span></span>
+<span class="line"><span style="color:#6A737D">// relative to the current file (in this case, &#39;bakery.js&#39;).</span></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> { cakesMade, makeACake } </span><span style="color:#F97583">from</span><span style="color:#9ECBFF"> &quot;./cake.js&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// after importing, we can use the values just like if they were declared in</span></span>
+<span class="line"><span style="color:#6A737D">// this file</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> cakeMessage </span><span style="color:#F97583">=</span><span style="color:#B392F0"> makeACake</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(cakeMessage);</span></span>
+<span class="line"><span style="color:#E1E4E8">console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`Here&#39;s how many cakes we&#39;ve made so far: ${</span><span style="color:#E1E4E8">cakesMade</span><span style="color:#9ECBFF">}`</span><span style="color:#E1E4E8">);</span></span></code></pre>
+<p>There are a few other ways to import and export things from modules. Consider checking out <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">MDN’s articles on <code>import</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export"><code>export</code></a> if you’re hungry for more module-based content.</p>
+<h2 id="destructuring">Destructuring</h2>
+<p>JavaScript provides a very nice way to look inside composite data types called destructuring. Destructuring lets us unpack the contents of things like arrays, objects, and other collections into multiple named variables.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// say we have an array like this</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> myArray </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#9ECBFF">&quot;foo&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;bar&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;baz&quot;</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// we can peek into the contents of the array with a destructuring assignment</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> [myFoo, myBar, myBaz] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> myArray;</span></span>
+<span class="line"><span style="color:#6A737D">// myArray hasn&#39;t been changed at all, but now we can use myFoo instead of</span></span>
+<span class="line"><span style="color:#6A737D">// myArray[0], myBar instead of myArray[1], etc</span></span>
+<span class="line"><span style="color:#E1E4E8">myFoo </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> myArray[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">myBar </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> myArray[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#E1E4E8">myBaz </span><span style="color:#F97583">===</span><span style="color:#E1E4E8"> myArray[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// you can also do this with objects. the unpacked variable names have to match</span></span>
+<span class="line"><span style="color:#6A737D">// the object property names, though.</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> myObj </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">  message: </span><span style="color:#9ECBFF">&quot;bingle&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">  question: </span><span style="color:#9ECBFF">&quot;what?&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">};</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> { message, question } </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> myObj;</span></span>
+<span class="line"><span style="color:#E1E4E8">message </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;bingle&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">question </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;what?&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>You can use collection destructuring in a number of places, but we mostly only care about using it in declarations (which we just saw), for-of loops, and function parameters. Here’s how we destructure with function parameters.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// say we have an array with some values in it</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> array </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">4</span><span style="color:#E1E4E8">];</span></span>
+<span class="line"><span style="color:#6A737D">// and a function which uses some of these values</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> addFirstTwo</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">one</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">two</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> one </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> two;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#B392F0">addFirstTwo</span><span style="color:#E1E4E8">(array[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">], array[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]) </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// we could instead use a function that destructures the array to get its first</span></span>
+<span class="line"><span style="color:#6A737D">// two elements</span></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> addFirstTwoUnpack</span><span style="color:#E1E4E8">([ </span><span style="color:#FFAB70">one</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">two</span><span style="color:#E1E4E8"> ]) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> one </span><span style="color:#F97583">+</span><span style="color:#E1E4E8"> two;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#B392F0">addFirstTwoUnpack</span><span style="color:#E1E4E8">(array) </span><span style="color:#F97583">===</span><span style="color:#79B8FF"> 3</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// this also works with objects</span></span>
+<span class="line"><span style="color:#B392F0">greetWithName</span><span style="color:#E1E4E8">(name, greeting) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> greeting </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> name;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#B392F0">greetWithName</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alex&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#9ECBFF">&quot;Hi&quot;</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Hi Alex&quot;</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">function</span><span style="color:#B392F0"> greetWithNameUnpack</span><span style="color:#E1E4E8">({ </span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">greeting</span><span style="color:#E1E4E8"> }) {</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> greeting </span><span style="color:#F97583">+</span><span style="color:#9ECBFF"> &quot; &quot;</span><span style="color:#F97583"> +</span><span style="color:#E1E4E8"> name;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#B392F0">greetWithNameUnpack</span><span style="color:#E1E4E8">({</span></span>
+<span class="line"><span style="color:#E1E4E8">    name: </span><span style="color:#9ECBFF">&quot;Alex&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">    greeting: </span><span style="color:#9ECBFF">&quot;Hi&quot;</span><span style="color:#E1E4E8">,</span></span>
+<span class="line"><span style="color:#E1E4E8">}); </span><span style="color:#F97583">===</span><span style="color:#9ECBFF"> &quot;Hi Alex&quot;</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>And for for-of loops, we do something like this.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> matrix </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#E1E4E8">  [</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">  [</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">],</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// this loop prints out:</span></span>
+<span class="line"><span style="color:#6A737D">// (1, 0)</span></span>
+<span class="line"><span style="color:#6A737D">// (0, 1)</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">firstCol</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">secondCol</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">of</span><span style="color:#E1E4E8"> matrix) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  console.</span><span style="color:#B392F0">log</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`(${</span><span style="color:#E1E4E8">firstCol</span><span style="color:#9ECBFF">}, ${</span><span style="color:#E1E4E8">secondCol</span><span style="color:#9ECBFF">})`</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h2 id="functional-style-array-manipulation">Functional-style array manipulation</h2>
+<p>Working with arrays is a super common part of many programs. Given their ubiquity, developers have come up with some very nice ways to interact with arrays beyond your standard for loop. These take the form of higher order methods, methods that take in other functions as parameters. The most important ones for our purposes are <code>filter</code>, and <code>map</code>.<sup><a href="#user-content-fn-other-array-funcs" id="user-content-fnref-other-array-funcs" data-footnote-ref aria-describedby="footnote-label">4</a></sup></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// say we have a class that stores information about a person</span></span>
+<span class="line"><span style="color:#F97583">class</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">  constructor</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">name</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">age</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.name </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name;</span></span>
+<span class="line"><span style="color:#79B8FF">    this</span><span style="color:#E1E4E8">.age </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> name;</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// let&#39;s make an array of people</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> people </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alice&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Bob&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">36</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Harry&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">44</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Sue&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">16</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alex&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// now, imagine that we wanted to get all of the people who are able to vote.</span></span>
+<span class="line"><span style="color:#6A737D">// a naive approach might be to make an array with a loop and a conditional.</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> votingPeople </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> person</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> people) {</span></span>
+<span class="line"><span style="color:#F97583">  if</span><span style="color:#E1E4E8"> (person.age </span><span style="color:#F97583">&gt;=</span><span style="color:#79B8FF"> 18</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    votingPeople.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(person);</span></span>
+<span class="line"><span style="color:#E1E4E8">  }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// this works fine enough, but is a little long-winded. the Array.filter method</span></span>
+<span class="line"><span style="color:#6A737D">// lets us instead provide a &#39;checker&#39; function which says either &#39;yes&#39; (true)</span></span>
+<span class="line"><span style="color:#6A737D">// or &#39;no&#39; (false) to each element of the array. the elements we say &#39;yes&#39; to</span></span>
+<span class="line"><span style="color:#6A737D">// are added into the new array while the ones we say &#39;no&#39; to are omitted.</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> filterVotingPeople </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> people.</span><span style="color:#B392F0">filter</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">person</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> person </span><span style="color:#F97583">&gt;=</span><span style="color:#79B8FF"> 18</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#6A737D">// that did the same thing as that whole previous block! much nicer, huh?</span></span></code></pre>
+<p>Mapping lets us use an element’s value to construct a new element.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8;overflow-x:auto" tabindex="0" data-language="js"><code><span class="line"><span style="color:#6A737D">// assume we&#39;re using the same Person class from before</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> people </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alice&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">20</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Bob&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">36</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Harry&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">44</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Sue&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">16</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#F97583">  new</span><span style="color:#B392F0"> Person</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">&quot;Alex&quot;</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">),</span></span>
+<span class="line"><span style="color:#E1E4E8">];</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// now imagine that we only want to extract just the names from the array.</span></span>
+<span class="line"><span style="color:#6A737D">// instead of doing this</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> peopleNames </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> [];</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">const</span><span style="color:#79B8FF"> person</span><span style="color:#F97583"> of</span><span style="color:#E1E4E8"> people) {</span></span>
+<span class="line"><span style="color:#E1E4E8">  peopleName.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(person.name);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// we can instead do this to get the same result</span></span>
+<span class="line"><span style="color:#F97583">let</span><span style="color:#E1E4E8"> mapPeopleNames </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> people.</span><span style="color:#B392F0">map</span><span style="color:#E1E4E8">((</span><span style="color:#FFAB70">person</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">=&gt;</span><span style="color:#E1E4E8"> person.name);</span></span></code></pre>
+<h2 id="more-resources">More resources</h2>
+<ul>
+<li><a href="https://learnxinyminutes.com/docs/javascript/">https://learnxinyminutes.com/docs/javascript/</a></li>
+<li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript">https://developer.mozilla.org/en-US/docs/Web/JavaScript</a></li>
+<li><a href="https://www.destroyallsoftware.com/talks/wat">https://www.destroyallsoftware.com/talks/wat</a></li>
+</ul>
+<section data-footnotes class="footnotes"><h2 class="sr-only" id="footnote-label">Footnotes</h2>
+<ol>
+<li id="user-content-fn-other-primitives">
+<p>Okay, technically there’s also <a href="https://developer.mozilla.org/en-US/docs/Glossary/BigInt"><code>bigint</code></a> and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Symbol"><code>symbol</code></a>, but most readers probably don’t need to worry about those. <a href="#user-content-fnref-other-primitives" data-footnote-backref aria-label="Back to reference 1" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-other-decls">
+<p>There are also no-keyword declarations (which are always global-scope) and <code>var</code> declarations (which are function-scope). These are included in the language for legacy reasons, and generally should not be used today. <a href="#user-content-fnref-other-decls" data-footnote-backref aria-label="Back to reference 2" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-cors">
+<p>We’ll be ignoring <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">CORS</a> here for illustrative purposes, but in the real world you’ll have to keep it in mind. <a href="#user-content-fnref-cors" data-footnote-backref aria-label="Back to reference 3" class="data-footnote-backref">↩</a></p>
+</li>
+<li id="user-content-fn-other-array-funcs">
+<p>There are several other very nice functional array methods out there, but these are the most important ones. See <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce"><code>Array.reduce()</code></a>, <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/every"><code>Array.every()</code></a>, and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some"><code>Array.some()</code></a> for more. <a href="#user-content-fnref-other-array-funcs" data-footnote-backref aria-label="Back to reference 4" class="data-footnote-backref">↩</a></p>
+</li>
+</ol>
+</section>  </div>  </main> <footer class="mt-auto"> <div class="text-center w-full light:bg-gray-200 text-gray-500 bg-gray-800 p-[0.5rem]"> <div> <a class="md:inline-block" href="/">Home</a>
+&middot;
+<a class="md:inline-block" href="/blog/feed.xml">RSS</a>
+&middot;
+<a class="md:inline-block" href="#">Top</a> </div> <div> <p class="group md:inline-block"> <span class="inline-block motion-safe:group-hover:[transform:rotateY(180deg)] transition-transform">&copy;</span> 2023-2025 Gabe Livengood
+</p> <span class="hidden md:inline-block">&middot;</span> <p class="md:inline-block">
+Blog content is <a href="//creativecommons.org/licenses/by-sa/4.0/">CC-BY-SA-4.0</a>. Code examples are <a href="//choosealicense.com/licenses/mit/">MIT</a>.
+</p> </div> </div> </footer> </body></html>
