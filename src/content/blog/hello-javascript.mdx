@@ -24,8 +24,9 @@ JavaScript's syntax is generally C-flavored, so if you have experience in langua
 
 Comments are portions of your source code that the interpreter won't run. They're typically used for documentation and other things that are intended for developers to read (not the computer). Single line comments start with two slashes (`//`) and run until the end of a line. Multi-line comments start with a slash-star (`/*`) and run until the next star-slash (`*/`).
 
+{/* prettier-ignore */}
 ```js
-"something here will be run"; // but this won't!
+"something here will be run" // but this won't!
 /*
 multi-line comments are nice because they let you
 break
@@ -38,13 +39,14 @@ up
 
 Like most other C-family languages, JavaScript terminates statements with a semicolon (`;`). Sometimes, you're able to omit these semicolons in your source code and let the interpreter guess about where to put them. The catch is that the interpreter sometimes won't have enough context to guess correctly, leaving you with some really confusing errors. In this club, we've decided that it's in our best interest to explicitly include semicolons 100% of the time. Please do your best to follow this standard!
 
+{/* prettier-ignore */}
 ```js
 // semicolon included
 // ------------v
 "this is valid";
 // semicolon omitted
 // -----------------------------------v
-"this is also valid (but discouraged)";
+"this is also valid (but discouraged)"
 ```
 
 ### Primitives and common operations
@@ -67,7 +69,7 @@ true && false
 !true
 // use parenthesis to enforce an order of operations
 // this yields true
-true || false || (true && false)
+(true || false) || (true && false)
 ```
 
 Numbers are stored as double-precision floating point numbers (think `double` in your C-style language of choice). They look like:
@@ -77,7 +79,7 @@ Numbers are stored as double-precision floating point numbers (think `double` in
 // plain integers yield their value
 1
 // you can add a point without anything after it
-2
+2.
 // or with something
 3.0
 // scientific notation works - this translates to 400 * 10^(-2)
@@ -112,15 +114,15 @@ Strings look like this:
 // double quotes
 "this is a string"
 // single quotes
-"this is also a string"
+'this is also a string'
 // backticks (that thing to the left of your 1 key)
 `this is also also a string`
 // you can use a backslash (\) to break long strings into multiple lines
 // this yields "this string spans multiple lines!" (no new line)
-("this string spans \
-multiple lines!")
+"this string spans \
+multiple lines!"
 // you can use the usual escape sequences
-("newline: \n, tab: \t, carriage return: \r, null: \0, etc")
+"newline: \n, tab: \t, carriage return: \r, null: \0, etc"
 // strings are arrays of individual characters. you can access these characters
 // with a subscript ([]). we'll talk more about arrays later!
 // this yields the string '3'
@@ -275,6 +277,7 @@ true === !!"false"
 
 Conditionals let you make decisions about whether or not a bit of code should run. They come in the form of a Boolean condition to test and a block to execute (or not, depending on the condition).
 
+{/* prettier-ignore */}
 ```js
 if (true) {
   // the condition is true, this will run
@@ -292,8 +295,10 @@ if (false) {
 }
 
 // you can omit the curly braces ({}) if you only use one statement
-if (false) "won't run";
-else "will run";
+if (false)
+  "won't run";
+else
+  "will run";
 
 // omitting braces is usually bad style, but it's useful when chaining
 // conditionals together. remember, conditionals are themselves a statement,
@@ -520,6 +525,7 @@ returnOne() === 1;
 
 There are also some other ways to declare functions, mainly unnamed functions and lambdas.
 
+{/* prettier-ignore */}
 ```js
 // if the interpreter has enough information to name a function itself, you can
 // omit the name from the initial declaration and later refer to it by the
@@ -529,26 +535,18 @@ let namedFunction = function () {
 };
 namedFunction();
 let functionArray = [
-  function () {
-    /* I'm named functionArray[0] */
-  },
-  function () {
-    /* I'm named functionArray[1] */
-  },
+  function () { /* I'm named functionArray[0] */ },
+  function () { /* I'm named functionArray[1] */ },
 ];
 functionArray[0]();
 functionArray[1]();
 
 // you can use arrow syntax functions (or 'lambdas') as more concise notation
-let otherNamedFunction = () => {
-  /* I'm named otherNamedFunction */
-};
+let otherNamedFunction = () => { I'm named otherNamedFunction */ };
 otherNamedFunction();
 // lambdas can do anything functions can, including taking parameters and
 // returning values
-let lambdaSuccessor = (number) => {
-  return number + 1;
-};
+let lambdaSuccessor = number => { return number + 1; };
 lambdaSuccessor(1) === 2;
 // if a lambda is able to return in one expression, you can omit the braces and
 // return statement as a shorthand. you can also leave out the parenthesis if
