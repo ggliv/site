@@ -11,8 +11,9 @@
   --color-mega-blue-light: #2987d9;
 
   --font-fredoka: Fredoka Variable, sans-serif;
-  --font-sans: Arial, Helvetica, ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans:
+    Arial, Helvetica, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
 
 .link {

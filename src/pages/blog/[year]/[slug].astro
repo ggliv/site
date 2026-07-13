@@ -7,7 +7,7 @@ export async function getStaticPaths() {
   // we want to make pages for all posts, not just non-draft ones
   const blogEntries = await getCollection("blog");
   return blogEntries.map((post) => ({
-    params: { year: post.data.date.getUTCFullYear(), slug: post.id },
+    params: { year: post.data.date.getUTCFullYear().toString(), slug: post.id },
     props: { post },
   }));
 }
