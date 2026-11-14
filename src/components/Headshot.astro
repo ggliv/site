@@ -152,32 +152,31 @@ const { width, height } = Astro.props;
         velocity.needsUpdate = true;
       }
 
-      requestAnimationFrame(function update(t: DOMHighResTimeStamp) {
-        requestAnimationFrame(update);
+      texture.loaded?.then(() => {
+        document.getElementById("headshot-img")?.replaceWith(gl.canvas);
+        requestAnimationFrame(function update(t: DOMHighResTimeStamp) {
+          requestAnimationFrame(update);
 
-        // Reset velocity when mouse not moving
-        if (!velocity.needsUpdate) {
-          mouse.set(-1);
-          velocity.set(0);
-        }
-        velocity.needsUpdate = false;
+          // Reset velocity when mouse not moving
+          if (!velocity.needsUpdate) {
+            mouse.set(-1);
+            velocity.set(0);
+          }
+          velocity.needsUpdate = false;
 
-        // Update flowmap inputs
-        flowmap.aspect = 1;
-        flowmap.mouse.copy(mouse);
+          // Update flowmap inputs
+          flowmap.aspect = 1;
+          flowmap.mouse.copy(mouse);
 
-        // Ease velocity input, slower when fading out
-        flowmap.velocity.lerp(velocity, velocity.len() ? 0.5 : 0.1);
+          // Ease velocity input, slower when fading out
+          flowmap.velocity.lerp(velocity, velocity.len() ? 0.5 : 0.1);
 
-        flowmap.update();
+          flowmap.update();
 
-        program.uniforms.uTime.value = t * 0.001;
+          program.uniforms.uTime.value = t * 0.001;
 
-        renderer.render({ scene: mesh });
-      });
-
-      window.addEventListener("DOMContentLoaded", () => {
-        document.getElementById("headshot-img")!.replaceWith(gl.canvas);
+          renderer.render({ scene: mesh });
+        });
       });
     }
   }
