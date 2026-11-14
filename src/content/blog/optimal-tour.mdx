@@ -107,7 +107,7 @@ EDGE_WEIGHT_SECTION
 EOF
 ```
 
-To get those OSRM edge weights into the TSPLIB format, we can once again crack out our trusty friend `jq`.a OSRM outputs walking times at a precision of 1/10 of a second, but TSPLIB edge weights must be integers. To fix this discrepancy, we multiply each weight by 10 in the `jq` command.
+To get those OSRM edge weights into the TSPLIB format, we can once again crack out our trusty friend `jq`. OSRM outputs walking times at a precision of 1/10 of a second, but TSPLIB edge weights must be integers. To fix this discrepancy, we multiply each weight by 10 in the `jq` command.
 
 ```console
 $ jq --raw-output '.[] | map(. * 10) | join(" ")' bars_osrm_table.json
