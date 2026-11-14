@@ -1,0 +1,43 @@
+---
+title: An Easter Egg(?) in Google's DNS Records
+date: 2026-11-13
+tags: ["grab-bag"]
+---
+
+I'm poking around with DNS right now for [a personal project](https://github.com/ggliv/godns "Dead link at time of writing but I'm putting it here to incentivize myself to finish and upload it eventually ;)"), so I'm making some queries I normally wouldn't make and analyzing the responses more than I usually would. One of these queries was for `google.com`'s TXT records.
+
+```console
+$ resolvectl query google.com --type txt
+google.com IN TXT "Z29vZ2xl"                                -- link: eth0
+google.com IN TXT "onetrust-domain-verification=6d685f1d41a94696ad7ef771f68993e0" -- link: eth0
+google.com IN TXT "google-site-verification=wD8N7i1JTNTkezJ49swvWW48f8_9xveREV4oB-0Hf5o" -- link: eth0
+google.com IN TXT "onetrust-domain-verification=0d477fe608074e6f9c12bca7826035cc" -- link: eth0
+google.com IN TXT "globalsign-smime-dv=CDYX+XFHUw2wml6/Gb8+59BsH31KzUr6c1l2BPvqKX8=" -- link: eth0
+google.com IN TXT "apple-domain-verification=30afIBcvSuDV2PLX" -- link: eth0
+google.com IN TXT "docusign=05958488-4752-4ef2-95eb-aa7ba8a3bd0e" -- link: eth0
+google.com IN TXT "facebook-domain-verification=22rm551cu4k0ab0bxsw536tlds4h95" -- link: eth0
+google.com IN TXT "MS=E4A68B9AB2BB9670BCE15412F62916164C0B20BB" -- link: eth0
+google.com IN TXT "v=spf1 include:_spf.google.com ~all"     -- link: eth0
+google.com IN TXT "work-accounts-domain-verification=Tcj6JjIMZOw2KsSEw2Nt2rLae89tN6" -- link: eth0
+google.com IN TXT "_r4rd1pvwyrpi7sw4a3hzmw8e51yh9td"        -- link: eth0
+google.com IN TXT "docusign=1b0a6754-49b1-4db5-8540-d2c12664b289" -- link: eth0
+google.com IN TXT "google-site-verification=TV9-DBe4R80X4v0M4U_bd_J9cpOJM0nikft0jAgjmsQ" -- link: eth0
+google.com IN TXT "cisco-ci-domain-verification=47c38bc8c4b74b7233e9053220c1bbe76bcc1cd33c7acf7acd36cd6a5332004b" -- link: eth0
+google.com IN TXT "arcules-domain-verification=2R4t5G7nI6tRCo61lpxxbLksPYstxhGmtV75cpr8x9K" -- link: eth0
+google.com IN TXT "google-site-verification=4ibFUgB-wXLQ_S7vsXVomSTVamuOXBiVAzpR5IZ87D0" -- link: eth0
+
+-- Information acquired via protocol DNS in 62.9ms.
+-- Data is authenticated: no; Data was acquired via local or encrypted transport: yes
+-- Data from: network
+```
+
+Most of these are pretty normal-looking, but I got curious about `Z29vZ2xl`. Turns out that's the base-64 encoding of `google`.
+
+```console
+$ python -c 'print(__import__("base64").b64decode("Z29vZ2xl").decode())'
+google
+```
+
+Weird. Wonder why that's there. Some website called [WhoisFreaks](https://whoisfreaks.com) purports to have historical DNS records and it first saw this particular TXT record on 07 June 2024, so that's a lower bound on how long it's been there. The only other reference to this online that I was able to find is [this Russian blog](https://dxdt.blog/2026/08/17/18959/) from a few months ago.
+
+The record could have a perfectly reasonable purpose beyond my comprehension, but I like to think it's one of Google's many easter eggs. No Zerg Rush or Breakout (RIP), but still a bit of fun.
